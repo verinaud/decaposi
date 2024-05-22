@@ -4,7 +4,9 @@ from interface import Interface
 
 class Decaposi():
     def __init__(self):
-        self.config = Config().get_config() # Cria uma instancia da classe Config
+        self.config = Config() # Cria uma instancia da classe Config
+
+        self.json = self.config.get_json() # Pega o config_json
 
         self.interface = Interface() # Cria uma instancia da classe Interface
 
@@ -12,12 +14,12 @@ class Decaposi():
 
         self.lista_aposentados = []
 
-        self.evento_botoes()
+        self.evento_botoes()        
 
         sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt        
 
     def iniciar(self):
-        print("Iniciou")
+        print("Iniciou")                        
 
         self.lista_aposentados = self.ler_base_dados() #Beatriz
 
