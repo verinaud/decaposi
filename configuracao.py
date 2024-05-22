@@ -39,8 +39,9 @@ class Config:
             ]            
         }
         
-        with open("config.json", 'w', encoding="utf-8") as file:
-            json.dump(config_json, file, indent=4, ensure_ascii=False)
-            
-        with open("config.json", encoding="utf-8") as file:
-                self.config = json.load(file)
+        try:
+            with open("config.json", 'w', encoding="utf-8") as file:
+                json.dump(config_json, file, indent=4, ensure_ascii=False)
+            self.config = config_json
+        except Exception as e:
+            print(f"Erro ao criar configuração padrão: {e}")

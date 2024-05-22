@@ -19,13 +19,13 @@ class Decaposi():
     def iniciar(self):
         print("Iniciou")
 
-        self.lista_aposentados = self.ler_base_dados()
+        self.lista_aposentados = self.ler_base_dados() #Beatriz
 
-        self.consultar_vinculo_decipex()
+        self.consultar_vinculo_decipex() #Tem pronto
 
-        self.consultar_cacoaposse()
+        self.consultar_cacoaposse() #Beatriz
 
-        self.preencher_declaracao()
+        self.preencher_declaracao() #Beatriz/André
     
     
     def ler_base_dados(self):
@@ -44,7 +44,7 @@ class Decaposi():
             1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa, se não encontrar solicita que o usuário selecione no computador.
             2. Lê os dados da planilha e instancia a classe Aposentados
             3. Cria uma lista com objetos da classe Aposentados
-            4. Renomeia a plnaliha como "base_dados_solicitacao.xlsx"
+            4. Renomeia a planilha como "base_dados_solicitacao.xlsx"
             5. Retorna uma lista de objetos da classe Aposentados
         """
         lista = []
