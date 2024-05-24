@@ -1,12 +1,13 @@
 import sys
 from configuracao import Config
 from interface import Interface
+import pandas as pd
+from aposentados import Aposentados
 
-class Decaposi:
-    def __init__(self, start_interface=True):
-        self.config = Config()  # Cria uma instância da classe Config
-        self.json = self.config.get_json()  # Pega o config_json
-        
+class Decaposi():
+    def __init__(self):
+        self.config = Config() # Cria uma instancia da classe Config
+
         self.json = self.config.get_json() # Pega o config_json
 
         self.interface = Interface() # Cria uma instancia da classe Interface
@@ -17,7 +18,7 @@ class Decaposi:
 
         self.evento_botoes()        
 
-        sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt        
+        sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt    
 
     def iniciar(self):
         print("Iniciou")                        
@@ -31,26 +32,60 @@ class Decaposi:
         self.preencher_declaracao() #Beatriz/André
     
     
-    def ler_base_dados(self):
+    def ler_base_dados(self, nome=None, cpf=None, siape=None):
         """
-        Lê a planilha excel com os dados iniciais: Nome, CPF, SIAPE
+        Lê a planilha Excel com os dados iniciais: Nome, CPF, SIAPE
 
         Parameters:
-            self (object): Instância do objeto.
-            
+            nome (str, optional): Nome a ser filtrado.
+            cpf (str, optional): CPF a ser filtrado.
+            siape (str, optional): SIAPE a ser filtrado.
 
         Returns:
-            list: lista
+            list: Lista de objetos Aposentados.
 
         Description:
             Este método realiza as seguintes ações:
-            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa, se não encontrar solicita que o usuário selecione no computador.
+            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa,
+               se não encontrar solicita que o usuário selecione no computador.
             2. Lê os dados da planilha e instancia a classe Aposentados
             3. Cria uma lista com objetos da classe Aposentados
             4. Renomeia a planilha como "base_dados_solicitacao.xlsx"
             5. Retorna uma lista de objetos da classe Aposentados
         """
         lista = []
+
+        try:
+            # Ler o arquivo Excel e armazenar o resultado em um DataFrame
+            df = pd.read_excel('Planilha de Declarações Aposentados.xlsx')
+
+            # Aplicar filtros se os parâmetros foram fornecidos
+            if nome:
+                df = df[df['Nome'] == nome]
+            if cpf:
+                df = df[df['CPF'] == cpf]
+            if siape:
+                df = df[df['SIAPE'] == siape]
+
+            # Iterar sobre as linhas do DataFrame filtrado
+            for _, row in df.iterrows():
+                aposentado = Aposentados(
+                    linha_planilha=row.name,
+                    nome=row['Nome'],
+                    cpf=row['CPF'],
+                    vinculo_decipex=False,  # Valor padrão, será atualizado posteriormente
+                    siape=row['SIAPE'],
+                    orgao_origem=None,  # Valor padrão, será atualizado posteriormente
+                    data_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
+                    fundamento_legal=None,  # Valor padrão, será atualizado posteriormente
+                    num_portaria=None,  # Valor padrão, será atualizado posteriormente
+                    data_dou=None  # Valor padrão, será atualizado posteriormente
+                )
+                lista.append(aposentado)
+
+        except FileNotFoundError:
+            print("Arquivo 'Planilha de Declarações Aposentados.xlsx' não encontrado. Por favor, verifique o nome do arquivo e sua localização.")
+
         return lista
     
     def consultar_vinculo_decipex(self):
@@ -121,5 +156,5 @@ class Decaposi:
     
 
 if __name__ == "__main__":
-    bot = Decaposi()
-    sys.exit()
+        bot = Decaposi()
+        sys.exit()
