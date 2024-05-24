@@ -21,7 +21,7 @@ class Decaposi():
         sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt    
 
     def iniciar(self):
-        print("Iniciou")                        
+        print("Iniciou")                       
 
         self.lista_aposentados = self.ler_base_dados() #Beatriz
 
@@ -86,7 +86,7 @@ class Decaposi():
         except FileNotFoundError:
             print("Arquivo 'Planilha de Declarações Aposentados.xlsx' não encontrado. Por favor, verifique o nome do arquivo e sua localização.")
 
-        return lista
+        print(lista) 
     
     def consultar_vinculo_decipex(self):
         """

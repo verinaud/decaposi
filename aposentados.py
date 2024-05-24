@@ -17,6 +17,7 @@ class Aposentados:
         '''Tratamento cpf garantindo que sempre tenha 11 dígitos'''
         # Remover caracteres não numéricos
         cpf = ''.join(filter(str.isdigit, str(cpf)))
+        # garante que o cpf tenha 11 digitos
         return cpf.zfill(11)
 
     def trata_data(self, data):
