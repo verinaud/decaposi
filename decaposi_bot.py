@@ -24,6 +24,8 @@ class Decaposi():
         print("Iniciou")                       
 
         self.lista_aposentados = self.ler_base_dados() #Beatriz
+        for ls in self.lista_aposentados:
+            print(ls.nome, ls.cpf, ls.siape)
 
         self.consultar_vinculo_decipex() #Tem pronto
 
@@ -86,7 +88,7 @@ class Decaposi():
         except FileNotFoundError:
             print("Arquivo 'Planilha de Declarações Aposentados.xlsx' não encontrado. Por favor, verifique o nome do arquivo e sua localização.")
 
-        print(lista) 
+        return lista
     
     def consultar_vinculo_decipex(self):
         """
