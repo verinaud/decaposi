@@ -32,8 +32,7 @@ class Decaposi():
         self.consultar_cacoaposse() #Beatriz
 
         self.preencher_declaracao() #Beatriz/André
-    
-    
+       
     def ler_base_dados(self, nome=None, cpf=None, siape=None):
         """
         Lê a planilha Excel com os dados iniciais: Nome, CPF, SIAPE
@@ -48,7 +47,7 @@ class Decaposi():
 
         Description:
             Este método realiza as seguintes ações:
-            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa,
+            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa,ok
                se não encontrar solicita que o usuário selecione no computador.
             2. Lê os dados da planilha e instancia a classe Aposentados
             3. Cria uma lista com objetos da classe Aposentados
