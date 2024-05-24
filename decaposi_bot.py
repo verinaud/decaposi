@@ -2,10 +2,11 @@ import sys
 from configuracao import Config
 from interface import Interface
 
-class Decaposi():
-    def __init__(self):
-        self.config = Config() # Cria uma instancia da classe Config
-
+class Decaposi:
+    def __init__(self, start_interface=True):
+        self.config = Config()  # Cria uma instância da classe Config
+        self.json = self.config.get_json()  # Pega o config_json
+        
         self.json = self.config.get_json() # Pega o config_json
 
         self.interface = Interface() # Cria uma instancia da classe Interface
