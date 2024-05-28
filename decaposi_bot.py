@@ -47,11 +47,10 @@ class Decaposi():
 
         Description:
             Este método realiza as seguintes ações:
-            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa,ok
-               se não encontrar solicita que o usuário selecione no computador.
+            1. Procura pela planilha base_dados_solicitacao.xlsx na raiz do programa, se não encontrar solicita que o usuário selecione no computador.
             2. Lê os dados da planilha e instancia a classe Aposentados
             3. Cria uma lista com objetos da classe Aposentados
-            4. Renomeia a planilha como "base_dados_solicitacao.xlsx"
+            4. Cria uma nova planilha na raiz do programa chamada "base_dados_solicitacao.xlsx" e popula com os dados tratados: "Nome, CPF e Matrícula".
             5. Retorna uma lista de objetos da classe Aposentados
         """
         lista = []
