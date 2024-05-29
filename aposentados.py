@@ -1,8 +1,9 @@
 from datetime import datetime
 
 class Aposentados:
-    def __init__(self, linha_planilha, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, fundamento_legal, num_portaria, data_dou):
+    def __init__(self, linha_planilha, status, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, fundamento_legal, num_portaria, data_dou):
         self.linha_planilha     = linha_planilha
+        self.status             = status
         self.nome               = nome
         self.cpf                = self.trata_cpf(cpf)
         self.siape              = siape
