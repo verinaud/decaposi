@@ -1,4 +1,5 @@
 import tkinter as tk
+from pywinauto import Application
 
 class Mensagem:
     def __init__(self, mensagem):
@@ -13,7 +14,14 @@ class Mensagem:
 
         self.root.bind("<Return>", lambda event: self.fechar_tela())
 
-        self.root.mainloop()   
+        self.root.mainloop()
+
+        try: 
+            app = Application().connect(title_re="^Aviso.*")
+            dlg = app.window(title_re="^Aviso.*")
+        except Exception:
+            pass
+        
         
     def fechar_tela(self):
         self.root.destroy()

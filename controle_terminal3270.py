@@ -23,7 +23,7 @@ class Janela3270:
                 tela = clipboard.GetData()
                 flag_getData = False
             except Exception as e :
-                print(e)
+                #print(e)
                 time.sleep(1)
 
         return tela
