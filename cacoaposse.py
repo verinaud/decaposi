@@ -172,8 +172,9 @@ class CACOAPOSSE:
         
         resultado1 = re.findall(texto1, texto_tela)
         resultado2 = re.findall(texto2, texto_tela)
+        resultado3 = re.findall(texto3, texto_tela)
 
-        if resultado1 and resultado2 :
+        if resultado1 and resultado2 and  resultado3:
             sleep(0.5)
             self.__dlg.type_keys('{F3}')
             self.__dlg.type_keys('{F2}')                   
@@ -297,7 +298,7 @@ class CACOAPOSSE:
     def consultar_cpf(self, cpf):
         """
         Descrição:
-            Consulta o CPF em CACOAPOSEN.
+            Consulta o CPF em CACOAPOSSE.
 
         Parâmetros:
             CPF - string.
@@ -313,26 +314,35 @@ class CACOAPOSSE:
     
     def __consultar_cpf(self, cpf):
         
+        self.__dlg.type_keys("{TAB 3}")
+        sleep(0.5)
+        self.__dlg.type_keys("x")
+        sleep(0.5)
+
         self.__dlg.type_keys(cpf)
-        kb.press("Enter")
+        sleep(1)
+        self.__dlg.type_keys('{ENTER}')
+        
 
         flag_prossiga = True
         conta_flag_prossiga = 0
         while flag_prossiga:
             conta_flag_prossiga+=1
 
-            texto_consulta = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 8, 005).strip()
-            texto1 = r'[_\s]*(CPF INVALIDO)[_\s]*'
+            texto_consulta = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
+            texto1 = r'[_\s]*(RH NAO CADASTRADO)[_\s]*'
             texto2 = r'[_\s]*(INFORME APENAS)[_\s]*'
             texto3 = r'[_\s]*(DIGITO VERIFICADOR INVALIDO)[_\s]*'
             texto4 = r'[_\s]*(NAO EXISTEM DADOS PARA ESTA CONSULTA)[_\s]*'
-            texto5 = r'[_\s]*(SELECIONE O SERVIDOR/PENSIONISTA)[_\s]*'
+            texto5 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
+            texto6 = r'[_\s]*(VOCE NAO ESTA AUTORIZADO A CONSULTAR DADOS DESTE SERVIDOR)[_\s]*'
 
             resultado1 = re.findall(texto1, texto_consulta)
             resultado2 = re.findall(texto2, texto_consulta)
             resultado3 = re.findall(texto3, texto_consulta)
             resultado4 = re.findall(texto4, texto_consulta)
             resultado5 = re.findall(texto5, texto_consulta)
+            resultado6 = re.findall(texto6, texto_consulta)
 
             if conta_flag_prossiga >= 30:
                 print("Terminal 3270 não responde.")
@@ -364,11 +374,13 @@ class CACOAPOSSE:
                 while flag_selecione:
                     conta_flag_selecione+=1
                     texto_consulta1 = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
-                    texto11 = r'[_\s]*(SELECIONE O VINCULO DESEJADO)[_\s]*'
+                    texto12 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
+                    texto13 = r'[_\s]*(DATA INICIO)[_\s]*'
 
-                    resultado11 = re.findall(texto11, texto_consulta1)
+                    resultado12 = re.findall(texto12, texto_consulta1)
+                    resultado13 = re.findall(texto13, texto_consulta1)
 
-                    if resultado11:            
+                    if resultado12 and resultado13:            
                         flag_selecione = False
                         self.__possui_cadastro(cpf)
                         self.__lista_cpf_ja_consultados.append(cpf)                       
@@ -382,46 +394,20 @@ class CACOAPOSSE:
 
                 self.__dlg.type_keys('{F12}')
                 self.__dlg.type_keys('{TAB}')
-            
                 sleep(0.5)
-
-    def __possui_cadastro(self,cpf):
-        status_cpf = "OK"
-        self.__pagina = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 9, 78, 9, 80).strip()
-        
-        pg = int(self.__pagina)
-
-        for __pagina in range(pg):
-
-            for linha in range(10, 22):
-                conteudo_linha      = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 1, linha, 80).strip()
-                servidor            = r'[_\s]*(SERVIDOR)[_\s]*'
-                pensionista         = r'[_\s]*(PENSIONISTA)[_\s]*'
-                tem_servidor        = re.findall(servidor, conteudo_linha)
-                tem_pensionista     = re.findall(pensionista, conteudo_linha)
-
-                orgao       = None
-                servidor    = False
-
-                if tem_servidor:
-                    servidor    = True
-                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 25, linha, 29).strip()
-                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "servidor", __pagina, linha, orgao, status_cpf)
-                
-                if tem_pensionista:
-                    pensionista = True
-                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 40, linha, 44).strip()
-                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "pensionista", __pagina, linha, orgao, status_cpf)
+            
+            if resultado6:
+                pass
                 
                 
-    def __popula_tupla(self, cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, nota):
-        tupla = (cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, nota)
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, __pagina, linha, nota):
+        tupla = (cpf, dl_aposentadoria, data_inicio, __pagina, linha, nota)
         self.__lista_tuplas.append(tupla)
 
         
 
 if __name__ == "__main__":
-        lista_cpf = {"06194362715","00214850030","02857294700","00467931003","37094394004","06194362715","44043716753","37739891215","27780120104","14910195060","35511680753","14910195068","00455865515","05152470810","08749872885","50375725687","27780120104","62750887704","14910195068","25393430744","02058766768","21966311915","45883076734","02214792520","57050759872","42544173653","00063339315","20903073749","91149533820","09154388600","33810150606","72758007720","07007591744","01447849710","23830921772","14898217249","88171558704","04883063372","25597027468","72758007720","10318950782","02089440872","53457749604","02605708004","32048114768","50958631891","00653187491","02544967846","20565429272","15212971420","00028894200","56013884749","36342858772","05291616806","89221320278","14970031304","18694438887","35753528953","19572190687","01904944760","21966311915","02058766768","25393430744","00063339315","00063339315","02214792520","45883076734","99497948204","24467499687","27179192015","11104660563","36172128833","85117811704","21902836472","01220106984","14238152387","79956513504","01790664802","03919978315","68704690753","49674765700","03845338253","44420226749","07077809773","21707863687","39497798172","89925742587","02827603500","02858002800","47537744734","10914196472","35516410649","51879840634","29178770068","18232388234","17562210225","42449227687","32421281687","35817674734","31617182753","31644740672","15147002391","76075915834","89215575715","73952800759","21757917349","55760139649","75436019404","24652296720","25067311991","62487019700","02532840404","22065300744","12580279768","79113427849","05780322104"        }
+        lista_cpf = {"00328391204"}
         print(len(lista_cpf))
         sleep(5)
         lista_vinculo = {"40802","40805","40806"}
@@ -432,6 +418,7 @@ if __name__ == "__main__":
         cd.get_lista_dados
 
         cd.iniciar_cacoaposse()
+    
 
         for cpf in lista_cpf:
 
@@ -441,12 +428,6 @@ if __name__ == "__main__":
 
             for x in lista:
                 print(x)
-
-            print("Vínculo Decipex?",cd.tem_vinculo_decipex(cpf))
-
-            
-
-            
 
         #cd.consultar_cpf("00653187491")
                     
