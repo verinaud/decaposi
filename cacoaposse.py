@@ -334,7 +334,7 @@ class CACOAPOSSE:
             texto2 = r'[_\s]*(INFORME APENAS)[_\s]*'
             texto3 = r'[_\s]*(DIGITO VERIFICADOR INVALIDO)[_\s]*'
             texto4 = r'[_\s]*(NAO EXISTEM DADOS PARA ESTA CONSULTA)[_\s]*'
-            texto5 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
+            texto5 = r'[_\s]*(MATRICULA NOME DO APOSENTADO)[_\s]*'
             texto6 = r'[_\s]*(VOCE NAO ESTA AUTORIZADO A CONSULTAR DADOS DESTE SERVIDOR)[_\s]*'
 
             resultado1 = re.findall(texto1, texto_consulta)
@@ -374,13 +374,15 @@ class CACOAPOSSE:
                 while flag_selecione:
                     conta_flag_selecione+=1
                     texto_consulta1 = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
+                    texto11 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
                     texto12 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
                     texto13 = r'[_\s]*(DATA INICIO)[_\s]*'
 
+                    resultado11 = re.findall(texto11, texto_consulta1)
                     resultado12 = re.findall(texto12, texto_consulta1)
                     resultado13 = re.findall(texto13, texto_consulta1)
 
-                    if resultado12 and resultado13:            
+                    if resultado11 and resultado12 and resultado13:            
                         flag_selecione = False
                         self.__possui_cadastro(cpf)
                         self.__lista_cpf_ja_consultados.append(cpf)                       
@@ -398,6 +400,28 @@ class CACOAPOSSE:
             
             if resultado6:
                 pass
+
+    def __possui_cadastro(self,cpf, dl_aposentadoria, data_inicio):
+        status_cpf = "OK"
+        self.__pagina = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 9, 78, 9, 80).strip()
+        
+        pg = int(self.__pagina)
+
+        for __pagina in range(pg):
+
+            for linha in range(10, 22):
+                conteudo_linha      = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 1, linha, 80).strip()
+                texto1 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
+                texto2 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
+                texto3 = r'[_\s]*(DATA INICIO)[_\s]*'
+
+                resultado1 = re.findall(texto1, conteudo_linha)
+                resultado2 = re.findall(texto2, conteudo_linha)
+                resultado3 = re.findall(texto3, conteudo_linha)
+
+                if resultado1 and resultado2 and resultado3:
+                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 10, linha, 11).strip()
+                    self.__popula_tupla(cpf,dl_aposentadoria, data_inicio, __pagina, linha, orgao, status_cpf)
                 
                 
     def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, __pagina, linha, nota):
