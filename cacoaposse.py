@@ -387,30 +387,21 @@ class CACOAPOSSE:
                         self.__possui_cadastro(cpf)
                         self.__lista_cpf_ja_consultados.append(cpf)                       
                                                 
-                    else:
-                        print("não encontrado")
-                        sleep(1)
 
-                    if conta_flag_selecione >30:
-                        flag_selecione = False
-
-                self.__dlg.type_keys('{F12}')
-                self.__dlg.type_keys('{TAB}')
+                self.__dlg.type_keys('{F8}')
                 sleep(0.5)
             
             if resultado6:
                 pass
-
-    def __possui_cadastro(self,cpf, dl_aposentadoria, data_inicio):
+                
+    def __possui_cadastro(self, cpf):
         status_cpf = "OK"
         self.__pagina = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 9, 78, 9, 80).strip()
-        
-        pg = int(self.__pagina)
 
-        for __pagina in range(pg):
-
+        while True:
+         # Busca informações de aposentadoria
             for linha in range(10, 22):
-                conteudo_linha      = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 1, linha, 80).strip()
+                conteudo_linha = self.__acesso_terminal.pega_texto_siape( 1, 1, 24, 80).strip()
                 texto1 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
                 texto2 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
                 texto3 = r'[_\s]*(DATA INICIO)[_\s]*'
@@ -420,18 +411,51 @@ class CACOAPOSSE:
                 resultado3 = re.findall(texto3, conteudo_linha)
 
                 if resultado1 and resultado2 and resultado3:
-                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 10, linha, 11).strip()
-                    self.__popula_tupla(cpf,dl_aposentadoria, data_inicio, __pagina, linha, orgao, status_cpf)
-                
-                
-    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, __pagina, linha, nota):
-        tupla = (cpf, dl_aposentadoria, data_inicio, __pagina, linha, nota)
+                    dl_aposentadoria = self.__acesso_terminal.pega_texto_siape(tela, linha, 10).strip()
+                    data_inicio = self.__acesso_terminal.pega_texto_siape(tela, linha, 11).strip()
+                    self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, "", "", linha, status_cpf)
+
+                    break  # Sai do loop interno, mas continua na busca de 'fundamento_legal'
+            else:
+                # Se não encontrou, avança a tela e tenta novamente
+                self.__dlg.type_keys('{F8}')
+                sleep(1)
+                continue
+
+            # Se chegou aqui, é porque encontrou as informações de aposentadoria
+            break
+
+        # Segunda etapa: Encontrar fundamento legal
+        while True:
+            # Captura o conteúdo da tela
+            tela = self.__acesso_terminal.copia_tela()
+
+            # Busca informações do fundamento legal
+            texto_consulta2 = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
+            texto = r'[_\s]*(DADOS DO FUNDAMENTO LEGAL)[_\s]*'
+            texto0 = r'[_\s]*(FUNDAMENTO LEGAL)[_\s]*'
+
+            resultado9 = re.findall(texto, texto_consulta2)
+            resultado8 = re.findall(texto0, texto_consulta2)
+
+            if resultado9 and resultado8:
+                fundamento_legal = self.__acesso_terminal.pega_texto_siape(tela, 12, 1, 12, 37).strip()
+                self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, fundamento_legal, "", "", status_cpf)
+                return  # Para parar após encontrar o fundamento legal
+
+            # Se não encontrou, avança a tela e tenta novamente
+            self.__dlg.type_keys('{F8}')
+            sleep(1)
+
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal, __pagina, linha, nota):
+        tupla = (cpf, dl_aposentadoria, data_inicio, fundamento_legal, __pagina, linha, nota)
         self.__lista_tuplas.append(tupla)
+
 
         
 
 if __name__ == "__main__":
-        lista_cpf = {"00328391204"}
+        lista_cpf = {"79113427849"        }
         print(len(lista_cpf))
         sleep(5)
         lista_vinculo = {"40802","40805","40806"}
