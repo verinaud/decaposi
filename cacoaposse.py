@@ -357,6 +357,7 @@ class CACOAPOSSE:
                 print(f"O número de CPF {cpf} não é válido! Verifique.")
                 self.__lista_cpf_ja_consultados.append(cpf)
                 flag_prossiga = False
+                continue
 
             if resultado4:
                 status_cpf = "O CPF",cpf,"não tem vínculo com nenhum órgão."
@@ -397,17 +398,14 @@ class CACOAPOSSE:
             if resultado6:
                 print(f"Não autorizado a consultar dados do CPF {cpf}. Continuando para o próximo.")
                 self.__lista_cpf_ja_consultados.append(cpf)
-
-                 # Apaga o CPF atual
-                self.__dlg.type_keys('{VK_BACKSPACE}' * len(cpf))
-                sleep(1)
-
                 flag_prossiga = False
-                continue
 
-            self.__dlg.type_keys(cpf)
-            sleep(1)
-                
+                self.__dlg.type_keys('{TAB 5')
+                sleep(0.5)
+                self.__dlg.type_keys('{DELETE}')
+                sleep(0.5)
+                continue
+            
     def __possui_cadastro(self, cpf):
         status_cpf = "OK"
         self.__pagina = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 9, 78, 9, 80).strip()
@@ -416,7 +414,7 @@ class CACOAPOSSE:
          # Busca informações de aposentadoria
             for linha in range(10, 22):
                 tela = self.__acesso_terminal.copia_tela()  # faz uma captura da tela
-                conteudo_linha = self.__acesso_terminal.pega_texto_siape(tela 1, 1, 24, 80).strip()
+                conteudo_linha = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
                 texto1 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
                 texto2 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
                 texto3 = r'[_\s]*(DATA INICIO)[_\s]*'
