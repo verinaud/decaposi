@@ -351,9 +351,7 @@ class CACOAPOSSE:
                 flag_prossiga = False
                 return False
 
-            '''if  resultado1 or resultado2 or resultado3 or resultado4 or resultado6:
-                status_cpf = "O número de CPF",cpf,"não é válido! Verifique."
-                self.__popula_tupla(cpf, None, None , None, None, None, status_cpf)
+            if  resultado1 or resultado2 or resultado3 or resultado4 or resultado6:
                 print(f"O número de CPF {cpf} não é válido! Verifique.")
                 self.__lista_cpf_ja_consultados.append(cpf)
                 flag_prossiga = False
@@ -368,7 +366,7 @@ class CACOAPOSSE:
                 kb.press("Enter")
                 self.__dlg.type_keys('{TAB}') 
                 continue
-'''
+
             if resultado5:
                 self.__dlg.type_keys('x')
                 sleep(0.2)
@@ -390,16 +388,34 @@ class CACOAPOSSE:
 
                     if resultado11 and resultado12 and resultado13:            
                         flag_selecione = False
-                        self.__possui_cadastro(cpf)
-                        self.__lista_cpf_ja_consultados.append(cpf)                       
-                                                
+                        dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
+                        data_inicio         = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()  
 
-                self.__dlg.type_keys('{F8}')
-                sleep(0.5)
+                        sleep(0.5)                             
+                        self.__dlg.type_keys('{F8 2}')
+                        sleep(0.5)
+                        
+                        while True:
+                            # Captura o conteúdo da tela
+                            tela = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
+
+                            # Busca informações do fundamento legal
+                            texto_consulta2 = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
+                            texto = r'[_\s]*(DADOS DO FUNDAMENTO LEGAL)[_\s]*'
+                            texto0 = r'[_\s]*(FUNDAMENTO LEGAL)[_\s]*'
+
+                            resultado9 = re.findall(texto, texto_consulta2)
+                            resultado8 = re.findall(texto0, texto_consulta2)
+
+                            if resultado9 and resultado8:
+                                fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
+                                self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, fundamento_legal)
+                                return  # Para parar após encontrar o fundamento legal
+
             else:
-               conta_tentativa += 1
-               sleep(0.5)
-               if conta_tentativa > 6:
+                conta_tentativa += 1
+                sleep(0.5)
+                if conta_tentativa > 6:
                     mensagem_erro = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 24, 1, 24, 80).strip()
                     print(f"Deu erro {mensagem_erro}")
                     sleep(0.5)
@@ -412,68 +428,12 @@ class CACOAPOSSE:
                     self.__dlg.type_keys('{TAB}') 
                     break 
 
-            
-    def __possui_cadastro(self, cpf):
-        status_cpf = "OK"
-        self.__pagina = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 9, 78, 9, 80).strip()
-        
-        pg = int(self.__pagina)
 
-        for __pagina in range(pg):
 
-            while True:
-            # Busca informações de aposentadoria
-                for linha in range(10, 22):
-                    tela = self.__acesso_terminal.copia_tela()  # faz uma captura da tela
-                    conteudo_linha = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
-                    texto1 = r'[_\s]*(DADOS DE ENTRADA NA APOSENTADORIA)[_\s]*'
-                    texto2 = r'[_\s]*(DL APOSENTADORIA)[_\s]*'
-                    texto3 = r'[_\s]*(DATA INICIO)[_\s]*'
-
-                    resultado1 = re.findall(texto1, conteudo_linha)
-                    resultado2 = re.findall(texto2, conteudo_linha)
-                    resultado3 = re.findall(texto3, conteudo_linha)
-
-                    if resultado1 and resultado2 and resultado3:
-                        dl_aposentadoria = self.__acesso_terminal.pega_texto_siape(tela, linha, 10).strip()
-                        data_inicio = self.__acesso_terminal.pega_texto_siape(tela, linha, 11).strip()
-                        self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, "", "", linha, status_cpf)
-
-                        break  # Sai do loop interno, mas continua na busca de 'fundamento_legal'
-                else:
-                    # Se não encontrou, avança a tela e tenta novamente
-                    self.__dlg.type_keys('{F8}')
-                    sleep(1)
-                    continue
-
-                # Se chegou aqui, é porque encontrou as informações de aposentadoria
-                break
-
-            # Segunda etapa: Encontrar fundamento legal
-            while True:
-                # Captura o conteúdo da tela
-                tela = self.__acesso_terminal.copia_tela(tela, 1, 1, 24, 80).strip()
-
-                # Busca informações do fundamento legal
-                texto_consulta2 = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
-                texto = r'[_\s]*(DADOS DO FUNDAMENTO LEGAL)[_\s]*'
-                texto0 = r'[_\s]*(FUNDAMENTO LEGAL)[_\s]*'
-
-                resultado9 = re.findall(texto, texto_consulta2)
-                resultado8 = re.findall(texto0, texto_consulta2)
-
-                if resultado9 and resultado8:
-                    fundamento_legal = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
-                    self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, fundamento_legal, "", "", status_cpf)
-                    return  # Para parar após encontrar o fundamento legal
-
-                # Se não encontrou, avança a tela e tenta novamente
-                self.__dlg.type_keys('{F8}')
-                sleep(1)
-
-    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal, __pagina, linha, nota):
-        tupla = (cpf, dl_aposentadoria, data_inicio, fundamento_legal, __pagina, linha, nota)
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal):
+        tupla = (cpf, dl_aposentadoria, data_inicio, fundamento_legal)
         self.__lista_tuplas.append(tupla)
+        print(tupla)
         
 
 if __name__ == "__main__":
@@ -488,10 +448,6 @@ if __name__ == "__main__":
         cd.get_lista_dados
 
         cd.iniciar_cacoaposse()
-
-        cd.consultar_cpf("20288174291")
-
-        sys.exit()
 
         for cpf in lista_cpf:
 
