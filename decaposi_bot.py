@@ -101,7 +101,7 @@ class Decaposi():
                     data_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
                     fundamento_legal=None,  # Valor padrão, será atualizado posteriormente
                     dl_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
-                    #data_dou=None  # Valor padrão, será atualizado posteriormente
+                    data_dou=None  # Valor padrão, será atualizado posteriormente
                 )
                 lista.append(aposentado)
         
@@ -312,7 +312,7 @@ class Decaposi():
             base_dados_atualizada.at[linha, 'Data Aposentadoria'] = str(aposentado.data_aposentadoria)
             base_dados_atualizada.at[linha, 'Fundamento Legal'] = str(aposentado.fundamento_legal)
             base_dados_atualizada.at[linha, 'Portaria Número'] = str(aposentado.dl_aposentadoria)
-           # base_dados_atualizada.at[linha, 'Data Publicação DOU'] = str(aposentado.data_dou)
+            base_dados_atualizada.at[linha, 'Data Publicação DOU'] = str(aposentado.data_dou)
 
         # Salva a planilha Excel atualizada, convertendo todos os dados para string
         base_dados_atualizada = base_dados_atualizada.astype(str)

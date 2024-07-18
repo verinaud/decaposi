@@ -11,8 +11,7 @@ import glob
 import sys
 import re
 import os
-
-
+from aposentados import Aposentados
 
 class CACOAPOSSE:
     def __init__(self, url):
@@ -386,6 +385,7 @@ class CACOAPOSSE:
                     if resultado11 and resultado12 and resultado13:            
                         flag_selecione = False
                         dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
+                        data_dou            = Aposentados.extrair_data(dl_aposentadoria)
                         data_inicio         = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()  
 
                         sleep(0.5)                             
@@ -406,7 +406,7 @@ class CACOAPOSSE:
 
                             if resultado9 and resultado8:
                                 fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
-                                self.__popula_tupla(cpf, dl_aposentadoria, data_inicio, fundamento_legal)
+                                self.__popula_tupla(cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal)
                                 break
 
             else:
@@ -434,14 +434,14 @@ class CACOAPOSSE:
         kb.press("Enter")
         self.__dlg.type_keys('{TAB}')
 
-    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal, data_dou):
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal):
         tupla = (cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal)
         self.__lista_tuplas.append(tupla)
         print(tupla)
         
 
 if __name__ == "__main__":
-        lista_cpf = {"20903073749","02544967846", "06194362715","00214850030"       }
+        lista_cpf = {"20903073749"      }
         print(len(lista_cpf))
         sleep(5)
 
