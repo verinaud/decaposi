@@ -15,6 +15,7 @@ import controle_terminal3270
 from time import sleep
 import keyboard as kb
 from cdconvinc import CDCONVINC
+from cacoaposse import CACOAPOSSE
 
 class Decaposi():
     def __init__(self):
@@ -46,17 +47,17 @@ class Decaposi():
         if flag_existe_planilha:
             pass
         else:
-            #lê a base de dados
-            lista_aposentados = self.ler_base_dados() #Beatriz
+            # lê a base de dados
+            lista_aposentados = self.ler_base_dados()  # Beatriz
         
-            #Atualiza a planilha
+            # Atualiza a planilha
             self.atualiza_planilha(lista_aposentados)
 
-        self.consultar_vinculo_decipex() #Tem pronto
+        self.consultar_vinculo_decipex()  # Tem pronto
 
-        self.consultar_cacoaposse() #Beatriz
+        self.consultar_cacoaposse()  # Beatriz
 
-        self.preencher_declaracao() #Beatriz/André       
+        self.preencher_declaracao()  # Beatriz/André    
     
     
     def ler_base_dados(self):
@@ -91,6 +92,7 @@ class Decaposi():
                 aposentado = Aposentados(
                     linha_planilha=row.name,
                     status=None,
+                    status_cacoaposse=None,
                     nome=row['Nome'],
                     cpf=row['CPF'],
                     vinculo_decipex=None,  # Valor padrão, será atualizado posteriormente
@@ -98,8 +100,8 @@ class Decaposi():
                     orgao_origem=None,  # Valor padrão, será atualizado posteriormente
                     data_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
                     fundamento_legal=None,  # Valor padrão, será atualizado posteriormente
-                    num_portaria=None,  # Valor padrão, será atualizado posteriormente
-                    data_dou=None  # Valor padrão, será atualizado posteriormente
+                    dl_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
+                    #data_dou=None  # Valor padrão, será atualizado posteriormente
                 )
                 lista.append(aposentado)
         
@@ -149,9 +151,6 @@ class Decaposi():
         cd = CDCONVINC(url_siapenet, lista_vinculo)
 
         cd.iniciar_cdconvinc()
-
-        msg("pausa")
-        
         
         for aposentado in lista_aposentados:
 
@@ -194,6 +193,42 @@ class Decaposi():
             4. Fecha o terminal 3270
             5. atualiza a planilha excel acrescentando as devidas colunas
         """
+
+        #Cria uma lista atualizada a partir da planilha
+        df = pd.read_excel(self.planilha)
+        
+        lista_aposentados = []
+
+        for indice, linha in df.iterrows():
+            status_cacoaposse   = linha["status cacoaposse"]
+            cpf                 = linha['CPF']
+            dl_aposentadoria    = linha['Dl Aposentadoria']
+            data_aposentadoria  = linha['Data da aposentadoria']
+            fundamento_legal    = linha['fundamento_legal']
+
+            print(status_cacoaposse)
+
+            #Verifica se o status ao consultar o cacoaposse está None, se sim instancia. 
+            if pd.isna(status_cacoaposse):
+                aposentado = Aposentados(indice, status_cacoaposse, cpf, dl_aposentadoria, data_aposentadoria, fundamento_legal, None, None, None, None, None)
+                lista_aposentados.append(aposentado)
+
+        url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
+        cd = CACOAPOSSE(url_siapenet)
+
+        cd.iniciar_cacoaposse()
+             
+        for aposentado in lista_aposentados:
+
+            cd.consultar_cpf(aposentado.cpf)
+            aposentado.status_cacoaposse    = cd.get_status_cpf(aposentado.cpf)
+            aposentado.data_aposentadoria   = cd.get_data_aposentadoria(aposentado.cpf)
+            aposentado.fundamento_legal     = cd.get_fundamento_legal(aposentado.cpf)
+            aposentado.dl_aposentadoria     = cd.get_dl_aposentadoria(aposentado.cpf)
+                
+            sleep(2)
+
+        self.atualiza_planilha(lista_aposentados)
 
     def preencher_declaracao(self):
         """
@@ -276,8 +311,8 @@ class Decaposi():
             base_dados_atualizada.at[linha, 'Órgão de Origem'] = str(aposentado.orgao_origem)
             base_dados_atualizada.at[linha, 'Data Aposentadoria'] = str(aposentado.data_aposentadoria)
             base_dados_atualizada.at[linha, 'Fundamento Legal'] = str(aposentado.fundamento_legal)
-            base_dados_atualizada.at[linha, 'Portaria Número'] = str(aposentado.num_portaria)
-            base_dados_atualizada.at[linha, 'Data Publicação DOU'] = str(aposentado.data_dou)
+            base_dados_atualizada.at[linha, 'Portaria Número'] = str(aposentado.dl_aposentadoria)
+           # base_dados_atualizada.at[linha, 'Data Publicação DOU'] = str(aposentado.data_dou)
 
         # Salva a planilha Excel atualizada, convertendo todos os dados para string
         base_dados_atualizada = base_dados_atualizada.astype(str)

@@ -400,7 +400,7 @@ class CACOAPOSSE:
                             texto_consulta2 = self.__acesso_terminal.pega_texto_siape(tela, 1, 1, 24, 80).strip()
                             texto = r'[_\s]*(DADOS DO FUNDAMENTO LEGAL)[_\s]*'
                             texto0 = r'[_\s]*(FUNDAMENTO LEGAL)[_\s]*'
-
+                            
                             resultado9 = re.findall(texto, texto_consulta2)
                             resultado8 = re.findall(texto0, texto_consulta2)
 
@@ -434,8 +434,8 @@ class CACOAPOSSE:
         kb.press("Enter")
         self.__dlg.type_keys('{TAB}')
 
-    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal):
-        tupla = (cpf, dl_aposentadoria, data_inicio, fundamento_legal)
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_inicio, fundamento_legal, data_dou):
+        tupla = (cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal)
         self.__lista_tuplas.append(tupla)
         print(tupla)
         

@@ -1,9 +1,10 @@
 from datetime import datetime
 
 class Aposentados:
-    def __init__(self, linha_planilha, status, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, fundamento_legal, num_portaria, data_dou):
+    def __init__(self, linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, fundamento_legal, dl_aposentadoria):
         self.linha_planilha     = linha_planilha
         self.status             = status
+        self.status_cacoaposse  = status_cacoaposse 
         self.nome               = nome
         self.cpf                = self.trata_cpf(cpf)
         self.siape              = siape
@@ -11,8 +12,8 @@ class Aposentados:
         self.orgao_origem       = orgao_origem
         self.data_aposentadoria = self.trata_data(data_aposentadoria)
         self.fundamento_legal   = fundamento_legal
-        self.num_portaria       = num_portaria
-        self.data_dou           = self.trata_data(data_dou)
+        self.dl_aposentadoria   = dl_aposentadoria
+        #self.data_dou           = self.trata_data(data_dou)
 
     def trata_cpf(self, cpf):
         '''Tratamento cpf garantindo que sempre tenha 11 dígitos'''
