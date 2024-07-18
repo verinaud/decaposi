@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 
 class Aposentados:
-    def __init__(self, linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria):
+    def __init__(self, linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria, data_inicio):
         self.linha_planilha     = linha_planilha
         self.status             = status
         self.status_cacoaposse  = status_cacoaposse 
@@ -14,6 +14,7 @@ class Aposentados:
         self.data_aposentadoria = self.trata_data(data_aposentadoria)
         self.fundamento_legal   = fundamento_legal
         self.dl_aposentadoria   = dl_aposentadoria
+        data_inicio             = self.trata_data(data_inicio)
         self.data_dou           = self.extrair_data, self.trata_data(data_dou)
 
     def trata_cpf(self, cpf):
