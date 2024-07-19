@@ -24,18 +24,31 @@ class Aposentados:
         # garante que o cpf tenha 11 digitos adiciona zeros a esquerda
         return cpf.zfill(11)
 
-    def trata_data(self, data):
+
+    @staticmethod
+    def trata_data(data):
         '''Tratamento de data para ficar no padrão dd/mm/aaaa'''
+        print(f"Recebido para tratamento: {data}")
         if isinstance(data, str):
             # Tentar converter a string para um objeto datetime
             try:
+                # Primeiro tentar converter no formato dd/mm/aaaa
                 data = datetime.strptime(data, '%d/%m/%Y')
+                print(f"Convertido usando dd/mm/aaaa: {data}")
             except ValueError:
-                # Se a string não estiver no formato esperado, retornar como está
-                return data
+                try:
+                    # Se falhar, tentar converter no formato ddMMMyyyy
+                    data = datetime.strptime(data, '%d%b%Y')
+                    print(f"Convertido usando ddMMMyyyy: {data}")
+                except ValueError:
+                    # Se a string não estiver em nenhum dos formatos esperados, retornar como está
+                    print(f"Formato desconhecido, retornando original: {data}")
+                    return data
         if isinstance(data, datetime):
             # Se for um objeto datetime, formatar como string
-            return data.strftime('%d/%m/%Y')
+            formatted_data = data.strftime('%d/%m/%Y')
+            print(f"Formatado para dd/mm/aaaa: {formatted_data}")
+            return formatted_data
         return data
 
     @staticmethod
@@ -52,7 +65,7 @@ class Aposentados:
         todas_as_datas = resultados1 + resultados2
         
         if not todas_as_datas:
-            return 'DATA DOU: Desconhecida'
+            return 'DATA DOU     :Desconhecida'
         
         # Ordenar todas as datas para garantir que a mais recente seja a última
         todas_as_datas.sort(reverse=True)
@@ -61,11 +74,11 @@ class Aposentados:
         
         # Converter o formato de data
         if len(data_formatada) == 10:  # Formato DD/MM/YYYY
-            data_formatada = f'DATA DOU: {data_formatada}'
+            data_formatada = f'DATA DOU     :{data_formatada}'
         elif len(data_formatada) == 9:  # Formato DDMMMYYYY
             try:
                 data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('DATA DOU: %d/%m/%Y')
             except ValueError:
-                data_formatada = 'DATA DOU: Desconhecida'
+                data_formatada = 'DATA DOU     :Desconhecida'
         
         return data_formatada

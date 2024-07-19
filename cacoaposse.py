@@ -386,7 +386,9 @@ class CACOAPOSSE:
                         flag_selecione = False
                         dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
                         data_dou            = Aposentados.extrair_data(dl_aposentadoria)
-                        data_inicio         = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()  
+                        data_inicio_text    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip() 
+                        data_inicio         = Aposentados.trata_data(data_inicio_text)
+                        print(data_inicio)
 
                         sleep(0.5)                             
                         self.__dlg.type_keys('{F8 2}')
@@ -441,7 +443,7 @@ class CACOAPOSSE:
         
 
 if __name__ == "__main__":
-        lista_cpf = {"20903073749"      }
+        lista_cpf = {"20903073749", "06194362715","00214850030","02857294700"     }
         print(len(lista_cpf))
         sleep(5)
 
