@@ -14,8 +14,8 @@ class Aposentados:
         self.data_aposentadoria = self.trata_data(data_aposentadoria)
         self.fundamento_legal   = fundamento_legal
         self.dl_aposentadoria   = dl_aposentadoria
-        data_inicio             = self.trata_data(data_inicio)
-        self.data_dou           = self.extrair_data, self.trata_data(data_dou)
+        self.data_inicio        = self.trata_data(data_inicio)
+        self.data_dou           = self.extrair_data(data_dou)
 
     def trata_cpf(self, cpf):
         '''Tratamento cpf garantindo que sempre tenha 11 dígitos'''
@@ -27,29 +27,26 @@ class Aposentados:
 
     @staticmethod
     def trata_data(data):
-        '''Tratamento de data para ficar no padrão dd/mm/aaaa'''
-        print(f"Recebido para tratamento: {data}")
-        if isinstance(data, str):
-            # Tentar converter a string para um objeto datetime
+        '''Converte uma data no formato ddMMMyyyy para dd/MM/yyyy'''
+
+        # Define o padrão para ddMMMyyyy
+        padrao_data = r'\d{2}[a-zA-Z]{3}\d{4}'
+
+        # Tenta encontrar a data no texto
+        resultado = re.findall(padrao_data, data)
+
+        if resultado:
+            data_encontrada = resultado[0]
             try:
-                # Primeiro tentar converter no formato dd/mm/aaaa
-                data = datetime.strptime(data, '%d/%m/%Y')
-                print(f"Convertido usando dd/mm/aaaa: {data}")
+                # Converte a data encontrada para o formato dd/MM/yyyy
+                data_convertida = datetime.strptime(data_encontrada, '%d%b%Y')
+                data_formatada = data_convertida.strftime('%d/%m/%Y')
+                data_formatada = f'DATA INICIO: {data_formatada}'
+                return data_formatada
             except ValueError:
-                try:
-                    # Se falhar, tentar converter no formato ddMMMyyyy
-                    data = datetime.strptime(data, '%d%b%Y')
-                    print(f"Convertido usando ddMMMyyyy: {data}")
-                except ValueError:
-                    # Se a string não estiver em nenhum dos formatos esperados, retornar como está
-                    print(f"Formato desconhecido, retornando original: {data}")
-                    return data
-        if isinstance(data, datetime):
-            # Se for um objeto datetime, formatar como string
-            formatted_data = data.strftime('%d/%m/%Y')
-            print(f"Formatado para dd/mm/aaaa: {formatted_data}")
-            return formatted_data
-        return data
+                return data
+        else:
+            return data
 
     @staticmethod
     def extrair_data(texto):
@@ -65,7 +62,7 @@ class Aposentados:
         todas_as_datas = resultados1 + resultados2
         
         if not todas_as_datas:
-            return 'DATA DOU     :Desconhecida'
+            return 'DATA DOU: Desconhecida'
         
         # Ordenar todas as datas para garantir que a mais recente seja a última
         todas_as_datas.sort(reverse=True)
@@ -74,11 +71,11 @@ class Aposentados:
         
         # Converter o formato de data
         if len(data_formatada) == 10:  # Formato DD/MM/YYYY
-            data_formatada = f'DATA DOU     :{data_formatada}'
+            data_formatada = f'DATA DOU: {data_formatada}'
         elif len(data_formatada) == 9:  # Formato DDMMMYYYY
             try:
                 data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('DATA DOU: %d/%m/%Y')
             except ValueError:
-                data_formatada = 'DATA DOU     :Desconhecida'
+                data_formatada = 'DATA DOU: Desconhecida'
         
         return data_formatada

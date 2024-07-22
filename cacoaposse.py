@@ -386,9 +386,8 @@ class CACOAPOSSE:
                         flag_selecione = False
                         dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
                         data_dou            = Aposentados.extrair_data(dl_aposentadoria)
-                        data_inicio_text    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip() 
-                        data_inicio         = Aposentados.trata_data(data_inicio_text)
-                        print(data_inicio)
+                        data_inicio_text    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()
+                        data_inicio         = Aposentados.trata_data(data_inicio_text) 
 
                         sleep(0.5)                             
                         self.__dlg.type_keys('{F8 2}')
