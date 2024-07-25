@@ -12,6 +12,7 @@ import sys
 import re
 import os
 from aposentados import Aposentados
+from datetime import datetime
 
 class CACOAPOSSE:
     def __init__(self, url):
@@ -385,10 +386,10 @@ class CACOAPOSSE:
 
                     if resultado11 and resultado12 and resultado13:            
                         flag_selecione = False
-                        dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
-                        data_dou            = Aposentados.extrair_data(dl_aposentadoria)
-                        data_inicio_text    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()
-                        data_aposentadoria   = Aposentados.trata_data(data_inicio_text) 
+                        self.dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
+                        self.data_dou            = self.extrair_data(self.dl_aposentadoria)
+                        self.data_aposentadoria  = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()
+ 
 
                         sleep(0.5)                             
                         self.__dlg.type_keys('{F8 2}')
@@ -407,8 +408,8 @@ class CACOAPOSSE:
                             resultado8 = re.findall(texto0, texto_consulta2)
 
                             if resultado9 and resultado8:
-                                fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
-                                self.__popula_tupla(cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
+                                self.fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
+                                self.__popula_tupla(cpf, self.dl_aposentadoria, self.data_dou, self.data_aposentadoria, self.fundamento_legal)
                                 break
 
             else:
@@ -436,9 +437,53 @@ class CACOAPOSSE:
         kb.press("Enter")
         self.__dlg.type_keys('{TAB}')
 
+    @staticmethod
+    def extrair_data(texto):
+        '''Extrai a última data do texto fornecido e retorna no formato 'DATA DOU: DD/MM/YYYY' '''
+        padrao_data1 = r'\d{2}/\d{2}/\d{4}'
+        padrao_data2 = r'\d{2}[a-zA-Z]{3}\d{4}'
+        
+        # Encontrar todas as datas no texto
+        resultados1 = re.findall(padrao_data1, texto)
+        resultados2 = re.findall(padrao_data2, texto)
+        
+        # Combinar todas as datas encontradas
+        todas_as_datas = resultados1 + resultados2
+        
+        if not todas_as_datas:
+            return 'DATA DOU: Desconhecida'
+        
+        # Ordenar todas as datas para garantir que a mais recente seja a última
+        todas_as_datas.sort(reverse=True)
+        
+        data_formatada = todas_as_datas[0]
+        
+        # Converter o formato de data
+        if len(data_formatada) == 10:  # Formato DD/MM/YYYY
+            data_formatada = f'DATA DOU: {data_formatada}'
+        elif len(data_formatada) == 9:  # Formato DDMMMYYYY
+            try:
+                data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('DATA DOU: %d/%m/%Y')
+            except ValueError:
+                data_formatada = 'DATA DOU: Desconhecida'
+        
+        return data_formatada
+
     def get_status_cacoaposse(self):
         # Retorna a mensagem de erro armazenada
         return self.__mensagem_erro
+
+    def get_dl_aposentadoria(self):
+        return self.dl_aposentadoria
+  
+    def get_data_dou(self):
+        return self.data_dou
+
+    def get_data_aposentadoria(self):
+        return self.data_aposentadoria
+
+    def get_fundamento_legal(self):
+        return self.fundamento_legal
         
     def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal):
         tupla = (cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
@@ -446,7 +491,7 @@ class CACOAPOSSE:
         print(tupla)
         
 
-'''if __name__ == "__main__":
+if __name__ == "__main__":
         lista_cpf = {"20903073749", "06194362715","00214850030","02857294700"     }
         print(len(lista_cpf))
         sleep(5)
@@ -473,4 +518,4 @@ class CACOAPOSSE:
 
         #cd.consultar_cpf("00653187491")
                     
-        sys.exit()'''
+        sys.exit()

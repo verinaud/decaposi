@@ -235,16 +235,29 @@ class Decaposi():
                 lista_aposentados.append(aposentado)
 
         url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
-        cd = CACOAPOSSE(url_siapenet)
+        cacoaposse = CACOAPOSSE(url_siapenet)
 
-        cd.iniciar_cacoaposse()
+        cacoaposse.iniciar_cacoaposse()
              
         for aposentado in lista_aposentados:
 
-            cd.consultar_cpf(aposentado.cpf)
-            aposentado.status_cacoaposse    = cd.get_status_cacoaposse()
+            try:
+                cacoaposse.consultar_cpf(aposentado.cpf)
 
-            aposentado.consultar_cpf        = cd.consultar_cpf(aposentado.cpf)
+                aposentado.status_cacoaposse    = cacoaposse.get_status_cacoaposse()
+
+                aposentado.dl_aposentadoria = cacoaposse.get_dl_aposentadoria
+
+                aposentado.set_data_dou(cacoaposse.get_data_dou)
+
+                aposentado.set_data_aposentadoria(cacoaposse.get_data_aposentadoria)
+
+                aposentado.fundamento_legal = cacoaposse.get_fundamento_legal
+            
+            except Exception as erro:
+                print(f'Erro ao consultar o cpf informado {cpf}')
+                continue
+            sleep(2)
 
         self.atualiza_planilha(lista_aposentados)
 

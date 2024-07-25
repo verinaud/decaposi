@@ -11,10 +11,17 @@ class Aposentados:
         self.siape              = siape
         self.vinculo_decipex    = vinculo_decipex        
         self.orgao_origem       = orgao_origem
-        self.data_aposentadoria = self.trata_data(data_aposentadoria)
+        self.data_aposentadoria = self.set_data_aposentadoria(data_aposentadoria)
         self.fundamento_legal   = fundamento_legal
         self.dl_aposentadoria   = dl_aposentadoria
-        self.data_dou           = self.extrair_data(data_dou)
+        self.data_dou           = self.set_data_dou(data_dou)
+
+    def set_data_dou(self, data_dou):
+        self.data_dou = self.trata_data(data_dou)
+
+    def set_data_aposentadoria(self, data_aposentadoria):
+        self.data_aposentadoria = self.trata_data(data_aposentadoria)
+
 
     def trata_cpf(self, cpf):
         '''Tratamento cpf garantindo que sempre tenha 11 dígitos'''
@@ -47,34 +54,4 @@ class Aposentados:
         else:
             return data
 
-    @staticmethod
-    def extrair_data(texto):
-        '''Extrai a última data do texto fornecido e retorna no formato 'DATA DOU: DD/MM/YYYY' '''
-        padrao_data1 = r'\d{2}/\d{2}/\d{4}'
-        padrao_data2 = r'\d{2}[a-zA-Z]{3}\d{4}'
-        
-        # Encontrar todas as datas no texto
-        resultados1 = re.findall(padrao_data1, texto)
-        resultados2 = re.findall(padrao_data2, texto)
-        
-        # Combinar todas as datas encontradas
-        todas_as_datas = resultados1 + resultados2
-        
-        if not todas_as_datas:
-            return 'DATA DOU: Desconhecida'
-        
-        # Ordenar todas as datas para garantir que a mais recente seja a última
-        todas_as_datas.sort(reverse=True)
-        
-        data_formatada = todas_as_datas[0]
-        
-        # Converter o formato de data
-        if len(data_formatada) == 10:  # Formato DD/MM/YYYY
-            data_formatada = f'DATA DOU: {data_formatada}'
-        elif len(data_formatada) == 9:  # Formato DDMMMYYYY
-            try:
-                data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('DATA DOU: %d/%m/%Y')
-            except ValueError:
-                data_formatada = 'DATA DOU: Desconhecida'
-        
-        return data_formatada
+    
