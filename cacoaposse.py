@@ -387,7 +387,7 @@ class CACOAPOSSE:
                         dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
                         data_dou            = Aposentados.extrair_data(dl_aposentadoria)
                         data_inicio_text    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()
-                        data_inicio         = Aposentados.trata_data(data_inicio_text) 
+                        data_aposentadoria   = Aposentados.trata_data(data_inicio_text) 
 
                         sleep(0.5)                             
                         self.__dlg.type_keys('{F8 2}')
@@ -407,7 +407,7 @@ class CACOAPOSSE:
 
                             if resultado9 and resultado8:
                                 fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
-                                self.__popula_tupla(cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal)
+                                self.__popula_tupla(cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
                                 break
 
             else:
@@ -435,8 +435,8 @@ class CACOAPOSSE:
         kb.press("Enter")
         self.__dlg.type_keys('{TAB}')
 
-    def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal):
-        tupla = (cpf, dl_aposentadoria, data_dou, data_inicio, fundamento_legal)
+    def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal):
+        tupla = (cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
         self.__lista_tuplas.append(tupla)
         print(tupla)
         

@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 
 class Aposentados:
-    def __init__(self, linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria, data_inicio):
+    def __init__(self, linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria):
         self.linha_planilha     = linha_planilha
         self.status             = status
         self.status_cacoaposse  = status_cacoaposse 
@@ -14,7 +14,6 @@ class Aposentados:
         self.data_aposentadoria = self.trata_data(data_aposentadoria)
         self.fundamento_legal   = fundamento_legal
         self.dl_aposentadoria   = dl_aposentadoria
-        self.data_inicio        = self.trata_data(data_inicio)
         self.data_dou           = self.extrair_data(data_dou)
 
     def trata_cpf(self, cpf):
@@ -41,7 +40,7 @@ class Aposentados:
                 # Converte a data encontrada para o formato dd/MM/yyyy
                 data_convertida = datetime.strptime(data_encontrada, '%d%b%Y')
                 data_formatada = data_convertida.strftime('%d/%m/%Y')
-                data_formatada = f'DATA INICIO: {data_formatada}'
+                data_formatada = f'DATA APOSENTADORIA: {data_formatada}'
                 return data_formatada
             except ValueError:
                 return data

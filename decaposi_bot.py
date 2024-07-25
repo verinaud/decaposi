@@ -53,7 +53,7 @@ class Decaposi():
             # Atualiza a planilha
             self.atualiza_planilha(lista_aposentados)
 
-        self.consultar_vinculo_decipex()  # Tem pronto
+        #self.consultar_vinculo_decipex()  # Tem pronto
 
         self.consultar_cacoaposse()  # Beatriz
 
@@ -98,10 +98,10 @@ class Decaposi():
                     vinculo_decipex=None,  # Valor padrão, será atualizado posteriormente
                     siape=row['SIAPE'],
                     orgao_origem=None,  # Valor padrão, será atualizado posteriormente
-                    data_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
+                    data_aposentadoria="",  # Valor padrão, será atualizado posteriormente
                     fundamento_legal=None,  # Valor padrão, será atualizado posteriormente
                     dl_aposentadoria=None,  # Valor padrão, será atualizado posteriormente
-                    data_dou=None  # Valor padrão, será atualizado posteriormente
+                    data_dou=""  # Valor padrão, será atualizado posteriormente
                 )
                 lista.append(aposentado)
         
@@ -143,7 +143,8 @@ class Decaposi():
 
             #Verifica se o vinculo_decipex está None, se sim instancia. 
             if str(vinculo_decipex) == "nan" and str(status) == "nan":
-                aposentado = Aposentados(indice, status, nome, cpf, siape, vinculo_decipex, None, None, None, None, None)
+                '''linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria'''
+                aposentado = Aposentados(indice, status, None, nome, cpf, siape, vinculo_decipex, None, "", "", None, None)
                 lista_aposentados.append(aposentado)
 
         url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
@@ -188,8 +189,8 @@ class Decaposi():
         Description:
             Este método realiza as seguintes ações:
             1. Acessa o terminal 3270 - CACOAPOSSE
-            2. Coleta dados do CPF: orgao_origem, data_aposentadoria, fundamento_legal, num_portaria e data_dou
-            3. Atualiza os seguintes parâmetros da lista_aposentados: data_aposentadoria, fundamento_legal, num_portaria e data_dou
+            2. Coleta dados do CPF: orgao_origem, data_aposentadoria, fundamento_legal, Dl Aposentadoria e data_dou
+            3. Atualiza os seguintes parâmetros da lista_aposentados: data_aposentadoria, fundamento_legal, Dl Aposentadoria e data_dou
             4. Fecha o terminal 3270
             5. atualiza a planilha excel acrescentando as devidas colunas
         """
@@ -203,6 +204,7 @@ class Decaposi():
             status_cacoaposse   = linha["status cacoaposse"]
             cpf                 = linha['CPF']
             dl_aposentadoria    = linha['Dl Aposentadoria']
+            data_dou            = linha['Data Publicação DOU']
             data_aposentadoria  = linha['Data da aposentadoria']
             fundamento_legal    = linha['fundamento_legal']
 
@@ -210,7 +212,7 @@ class Decaposi():
 
             #Verifica se o status ao consultar o cacoaposse está None, se sim instancia. 
             if pd.isna(status_cacoaposse):
-                aposentado = Aposentados(indice, status_cacoaposse, cpf, dl_aposentadoria, data_aposentadoria, fundamento_legal, None, None, None, None, None)
+                aposentado = Aposentados(indice, status_cacoaposse, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
                 lista_aposentados.append(aposentado)
 
         url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
@@ -222,9 +224,11 @@ class Decaposi():
 
             cd.consultar_cpf(aposentado.cpf)
             aposentado.status_cacoaposse    = cd.get_status_cpf(aposentado.cpf)
+            aposentado.dl_aposentadoria     = cd.get_dl_aposentadoria(aposentado.cpf)
+            aposentado.data_dou             = cd.get_data_dou(aposentado.cpf)
             aposentado.data_aposentadoria   = cd.get_data_aposentadoria(aposentado.cpf)
             aposentado.fundamento_legal     = cd.get_fundamento_legal(aposentado.cpf)
-            aposentado.dl_aposentadoria     = cd.get_dl_aposentadoria(aposentado.cpf)
+            
                 
             sleep(2)
 
