@@ -200,19 +200,38 @@ class Decaposi():
         
         lista_aposentados = []
 
+        colunas_verificar = ['Status Cacoaposse', 'Dl Aposentadoria', 'Data Aposentadoria', 'Fundamento Legal', 'Data Publicação DOU']
+        for coluna in colunas_verificar:
+            if coluna not in df.columns:
+                df[coluna] = ""
+
         for indice, linha in df.iterrows():
-            status_cacoaposse   = linha["status cacoaposse"]
+            status_cacoaposse   = linha["Status Cacoaposse"]
             cpf                 = linha['CPF']
             dl_aposentadoria    = linha['Dl Aposentadoria']
             data_dou            = linha['Data Publicação DOU']
-            data_aposentadoria  = linha['Data da aposentadoria']
-            fundamento_legal    = linha['fundamento_legal']
+            data_aposentadoria  = linha['Data Aposentadoria']
+            fundamento_legal    = linha['Fundamento Legal']
 
             print(status_cacoaposse)
 
             #Verifica se o status ao consultar o cacoaposse está None, se sim instancia. 
             if pd.isna(status_cacoaposse):
-                aposentado = Aposentados(indice, status_cacoaposse, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
+                
+                aposentado = Aposentados(
+                    indice,
+                    status=None,
+                    status_cacoaposse=status_cacoaposse,
+                    nome="",
+                    cpf=cpf,
+                    siape="",
+                    vinculo_decipex=None,
+                    orgao_origem=None,
+                    data_aposentadoria=str(data_aposentadoria),  
+                    data_dou=str(data_dou),  
+                    fundamento_legal=str(fundamento_legal),  
+                    dl_aposentadoria=str(dl_aposentadoria))  
+                
                 lista_aposentados.append(aposentado)
 
         url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
@@ -223,14 +242,9 @@ class Decaposi():
         for aposentado in lista_aposentados:
 
             cd.consultar_cpf(aposentado.cpf)
-            aposentado.status_cacoaposse    = cd.get_status_cpf(aposentado.cpf)
-            aposentado.dl_aposentadoria     = cd.get_dl_aposentadoria(aposentado.cpf)
-            aposentado.data_dou             = cd.get_data_dou(aposentado.cpf)
-            aposentado.data_aposentadoria   = cd.get_data_aposentadoria(aposentado.cpf)
-            aposentado.fundamento_legal     = cd.get_fundamento_legal(aposentado.cpf)
-            
-                
-            sleep(2)
+            aposentado.status_cacoaposse    = cd.get_status_cacoaposse()
+
+            aposentado.consultar_cpf        = cd.consultar_cpf(aposentado.cpf)
 
         self.atualiza_planilha(lista_aposentados)
 
@@ -294,7 +308,7 @@ class Decaposi():
         base_dados_atualizada = pd.read_excel(self.planilha, dtype=str)
 
         # Verifica se as colunas existem na planilha, se não, as cria.
-        colunas_necessarias = ['Status', 'Nome', 'CPF', 'SIAPE', 'Vínculo Decipex', 'Órgão de Origem', 'Data Aposentadoria', 'Fundamento Legal', 'Portaria Número', 'Data Publicação DOU']
+        colunas_necessarias = ['Status', 'Status Cacoaposse', 'Nome', 'CPF', 'SIAPE', 'Vínculo Decipex', 'Órgão de Origem', 'Data Aposentadoria', 'Fundamento Legal', 'Portaria Número', 'Data Publicação DOU']
         
         for coluna in colunas_necessarias:
             if coluna not in base_dados_atualizada.columns:
@@ -308,6 +322,7 @@ class Decaposi():
         for aposentado in lista_aposentados:
             linha = aposentado.linha_planilha
             base_dados_atualizada.at[linha, 'Status'] = str(aposentado.status)
+            base_dados_atualizada.at[linha, 'Status Cacoaposse'] = str(aposentado.status_cacoaposse)
             base_dados_atualizada.at[linha, 'Nome'] = str(aposentado.nome)
             base_dados_atualizada.at[linha, 'CPF'] = str(aposentado.cpf)
             base_dados_atualizada.at[linha, 'Vínculo Decipex'] = str(aposentado.vinculo_decipex)

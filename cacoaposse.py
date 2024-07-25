@@ -16,6 +16,7 @@ from aposentados import Aposentados
 class CACOAPOSSE:
     def __init__(self, url):
         self.__url                          = url
+        self.__mensagem_erro                = ""
         self.__acesso_terminal              = None
 
         self.__lista_tuplas                 = []
@@ -435,13 +436,17 @@ class CACOAPOSSE:
         kb.press("Enter")
         self.__dlg.type_keys('{TAB}')
 
+    def get_status_cacoaposse(self):
+        # Retorna a mensagem de erro armazenada
+        return self.__mensagem_erro
+        
     def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal):
         tupla = (cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
         self.__lista_tuplas.append(tupla)
         print(tupla)
         
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
         lista_cpf = {"20903073749", "06194362715","00214850030","02857294700"     }
         print(len(lista_cpf))
         sleep(5)
@@ -468,4 +473,4 @@ if __name__ == "__main__":
 
         #cd.consultar_cpf("00653187491")
                     
-        sys.exit()
+        sys.exit()'''
