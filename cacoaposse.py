@@ -411,7 +411,7 @@ class CACOAPOSSE:
                                 self.fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
                                 self.__popula_tupla(cpf, self.dl_aposentadoria, self.data_dou, self.data_aposentadoria, self.fundamento_legal)
                                 break
-                            
+
                         self.__mensagem_erro = None  # Limpa a mensagem de erro ao encontrar dados válidos
 
             else:
@@ -492,7 +492,6 @@ class CACOAPOSSE:
     def __popula_tupla(self, cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal):
         tupla = (cpf, dl_aposentadoria, data_dou, data_aposentadoria, fundamento_legal)
         self.__lista_tuplas.append(tupla)
-        print(tupla)
         
 
 if __name__ == "__main__":
