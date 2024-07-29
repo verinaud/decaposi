@@ -53,7 +53,7 @@ class Decaposi():
             # Atualiza a planilha
             self.atualiza_planilha(lista_aposentados)
 
-        #self.consultar_vinculo_decipex()  # Tem pronto
+        self.consultar_vinculo_decipex()  # Tem pronto
 
         self.consultar_cacoaposse()  # Beatriz
 
@@ -143,7 +143,6 @@ class Decaposi():
 
             #Verifica se o vinculo_decipex está None, se sim instancia. 
             if str(vinculo_decipex) == "nan" and str(status) == "nan":
-                '''linha_planilha, status, status_cacoaposse, nome, cpf, siape, vinculo_decipex, orgao_origem, data_aposentadoria, data_dou, fundamento_legal, dl_aposentadoria'''
                 aposentado = Aposentados(indice, status, None, nome, cpf, siape, vinculo_decipex, None, "", "", None, None)
                 lista_aposentados.append(aposentado)
 
@@ -206,8 +205,11 @@ class Decaposi():
                 df[coluna] = ""
 
         for indice, linha in df.iterrows():
+            status              = linha['Status']
             status_cacoaposse   = linha["Status Cacoaposse"]
             cpf                 = linha['CPF']
+            vinculo_decipex     = linha['Vínculo Decipex']
+            siape               = linha['SIAPE']
             dl_aposentadoria    = linha['Dl Aposentadoria']
             data_dou            = linha['Data Publicação DOU']
             data_aposentadoria  = linha['Data Aposentadoria']
@@ -220,19 +222,21 @@ class Decaposi():
                 
                 aposentado = Aposentados(
                     indice,
-                    status            =None,
+                    status            = status,
                     status_cacoaposse = status_cacoaposse,
-                    nome              ="",
-                    cpf               =cpf,
-                    siape             ="",
-                    vinculo_decipex   =None,
-                    orgao_origem      =None,
-                    data_aposentadoria=str(data_aposentadoria),  
-                    data_dou          =str(data_dou),  
-                    fundamento_legal  =str(fundamento_legal),  
-                    dl_aposentadoria  =str(dl_aposentadoria))  
+                    nome              = "",
+                    cpf               = cpf,
+                    siape             = siape,
+                    vinculo_decipex   = vinculo_decipex,
+                    orgao_origem      = None,
+                    data_aposentadoria= str(data_aposentadoria),  
+                    data_dou          = str(data_dou),  
+                    fundamento_legal  = str(fundamento_legal),  
+                    dl_aposentadoria  = str(dl_aposentadoria))  
                 
-                lista_aposentados.append(aposentado)
+                #condição que determina que a lista só será preenchida se status_cacoaposse for None
+                if status_cacoaposse is not None:
+                    lista_aposentados.append(aposentado)
 
         url_siapenet = "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio" 
         cacoaposse = CACOAPOSSE(url_siapenet)
@@ -240,26 +244,29 @@ class Decaposi():
         cacoaposse.iniciar_cacoaposse()
              
         for aposentado in lista_aposentados:
-
+            
             try:
                 cacoaposse.consultar_cpf(aposentado.cpf)
 
                 aposentado.status_cacoaposse    = cacoaposse.get_status_cacoaposse()
 
-                aposentado.dl_aposentadoria     = cacoaposse.get_dl_aposentadoria
+                aposentado.dl_aposentadoria     = cacoaposse.get_dl_aposentadoria()
 
-                aposentado.set_data_dou(cacoaposse.get_data_dou)
+                aposentado.set_data_dou(cacoaposse.get_data_dou())
 
-                aposentado.set_data_aposentadoria(cacoaposse.get_data_aposentadoria)
+                aposentado.set_data_aposentadoria(cacoaposse.get_data_aposentadoria())
 
-                aposentado.fundamento_legal     = cacoaposse.get_fundamento_legal
+                aposentado.fundamento_legal     = cacoaposse.get_fundamento_legal()
+
+                print(aposentado)
+
+                self.atualiza_planilha(lista_aposentados)
             
             except Exception as erro:
-                print(f'Erro ao consultar o cpf informado {cpf}')
+                print("------------------------------->ERRO ao consultar o cpf",aposentado.cpf)
                 continue
             sleep(2)
-
-        self.atualiza_planilha(lista_aposentados)
+                    
 
     def preencher_declaracao(self):
         """

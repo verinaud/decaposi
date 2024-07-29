@@ -53,5 +53,12 @@ class Aposentados:
                 return data
         else:
             return data
+        
+    def __str__(self):
+        return (f"Aposentados(linha_planilha={self.linha_planilha}, status={self.status}, "
+                f"status_cacoaposse={self.status_cacoaposse}, nome={self.nome}, cpf={self.cpf}, "
+                f"siape={self.siape}, vinculo_decipex={self.vinculo_decipex}, orgao_origem={self.orgao_origem}, "
+                f"data_aposentadoria={self.data_aposentadoria}, data_dou={self.data_dou}, "
+                f"fundamento_legal={self.fundamento_legal}, dl_aposentadoria={self.dl_aposentadoria})")
 
     
