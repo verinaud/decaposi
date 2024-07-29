@@ -411,6 +411,8 @@ class CACOAPOSSE:
                                 self.fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
                                 self.__popula_tupla(cpf, self.dl_aposentadoria, self.data_dou, self.data_aposentadoria, self.fundamento_legal)
                                 break
+                            
+                        self.__mensagem_erro = None  # Limpa a mensagem de erro ao encontrar dados válidos
 
             else:
                 conta_tentativa += 1
@@ -470,7 +472,9 @@ class CACOAPOSSE:
         return data_formatada
 
     def get_status_cacoaposse(self):
-        # Retorna a mensagem de erro armazenada
+        # Retorna "OK" se não houver mensagem de erro e os dados forem encontrados, caso contrário, retorna a mensagem de erro
+        if self.__mensagem_erro is None:
+            return "OK"
         return self.__mensagem_erro
 
     def get_dl_aposentadoria(self):
