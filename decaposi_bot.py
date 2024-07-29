@@ -246,13 +246,13 @@ class Decaposi():
 
                 aposentado.status_cacoaposse    = cacoaposse.get_status_cacoaposse()
 
-                aposentado.dl_aposentadoria = cacoaposse.get_dl_aposentadoria
+                aposentado.dl_aposentadoria     = cacoaposse.get_dl_aposentadoria
 
                 aposentado.set_data_dou(cacoaposse.get_data_dou)
 
                 aposentado.set_data_aposentadoria(cacoaposse.get_data_aposentadoria)
 
-                aposentado.fundamento_legal = cacoaposse.get_fundamento_legal
+                aposentado.fundamento_legal     = cacoaposse.get_fundamento_legal
             
             except Exception as erro:
                 print(f'Erro ao consultar o cpf informado {cpf}')
