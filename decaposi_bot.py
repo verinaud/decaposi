@@ -220,17 +220,17 @@ class Decaposi():
                 
                 aposentado = Aposentados(
                     indice,
-                    status=None,
-                    status_cacoaposse=status_cacoaposse,
-                    nome="",
-                    cpf=cpf,
-                    siape="",
-                    vinculo_decipex=None,
-                    orgao_origem=None,
+                    status            =None,
+                    status_cacoaposse = status_cacoaposse,
+                    nome              ="",
+                    cpf               =cpf,
+                    siape             ="",
+                    vinculo_decipex   =None,
+                    orgao_origem      =None,
                     data_aposentadoria=str(data_aposentadoria),  
-                    data_dou=str(data_dou),  
-                    fundamento_legal=str(fundamento_legal),  
-                    dl_aposentadoria=str(dl_aposentadoria))  
+                    data_dou          =str(data_dou),  
+                    fundamento_legal  =str(fundamento_legal),  
+                    dl_aposentadoria  =str(dl_aposentadoria))  
                 
                 lista_aposentados.append(aposentado)
 
