@@ -19,6 +19,7 @@ from cacoaposse import CACOAPOSSE
 
 class Decaposi():
     def __init__(self):
+        msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
         self.config = Config() # Cria uma instancia da classe Config
 
         self.json = self.config.get_json() # Pega o config_json
@@ -56,6 +57,8 @@ class Decaposi():
         self.consultar_vinculo_decipex()  # Tem pronto
 
         self.consultar_cacoaposse()  # Beatriz
+
+        self.sair_siape()
 
         self.preencher_declaracao()  # Beatriz/André    
     
@@ -161,17 +164,14 @@ class Decaposi():
                 aposentado.vinculo_decipex = cd.get_vinculo_decipex(aposentado.cpf)
 
                 aposentado.status = cd.get_status_cpf(aposentado.cpf)
-                
+
                 self.atualiza_planilha(lista_aposentados)
 
             except Exception as erro:
 
                 self.consultar_vinculo_decipex()
             
-            sleep(2)
-
-
-    
+            sleep(2)   
     
     
     def consultar_cacoaposse(self):
@@ -214,6 +214,7 @@ class Decaposi():
             data_dou            = linha['Data Publicação DOU']
             data_aposentadoria  = linha['Data Aposentadoria']
             fundamento_legal    = linha['Fundamento Legal']
+            nome                = linha['Nome']
 
             print(status_cacoaposse)
 
@@ -224,7 +225,7 @@ class Decaposi():
                     indice,
                     status            = status,
                     status_cacoaposse = status_cacoaposse,
-                    nome              = "",
+                    nome              = nome,
                     cpf               = cpf,
                     siape             = siape,
                     vinculo_decipex   = vinculo_decipex,
@@ -324,6 +325,7 @@ class Decaposi():
             print(e)  
             
     def atualiza_planilha(self, lista_aposentados):
+
         # Abre a planilha Excel uma vez para atualização, especificando que todas as colunas devem ser lidas como strings
         base_dados_atualizada = pd.read_excel(self.planilha, dtype=str)
 
