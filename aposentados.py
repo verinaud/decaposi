@@ -47,10 +47,9 @@ class Aposentados:
                 # Converte a data encontrada para o formato dd/MM/yyyy
                 data_convertida = datetime.strptime(data_encontrada, '%d%b%Y')
                 data_formatada = data_convertida.strftime('%d/%m/%Y')
-                data_formatada = f'DATA APOSENTADORIA: {data_formatada}'
                 return data_formatada
             except ValueError:
-                return data
+                return data_formatada
         else:
             return data
         

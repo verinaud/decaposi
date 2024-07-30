@@ -392,9 +392,9 @@ class CACOAPOSSE:
 
                     if resultado11 and resultado12 and resultado13:            
                         flag_selecione = False
-                        self.dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 1, 10, 80).strip()
+                        self.dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 20, 10, 80).strip()
                         self.data_dou            = self.extrair_data(self.dl_aposentadoria)
-                        self.data_aposentadoria  = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 1, 11, 33).strip()
+                        self.data_aposentadoria  = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 20, 11, 33).strip()
  
 
                         sleep(0.5)                             
@@ -414,7 +414,7 @@ class CACOAPOSSE:
                             resultado8 = re.findall(texto0, texto_consulta2)
 
                             if resultado9 and resultado8:
-                                self.fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 2, 12, 80).strip()
+                                self.fundamento_legal = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 12, 23, 12, 80).strip()
                                 self.__popula_tupla(cpf, self.dl_aposentadoria, self.data_dou, self.data_aposentadoria, self.fundamento_legal)
                                 break
 
@@ -459,7 +459,7 @@ class CACOAPOSSE:
         todas_as_datas = resultados1 + resultados2
         
         if not todas_as_datas:
-            return 'DATA DOU: Desconhecida'
+            return 'Desconhecida'
         
         # Ordenar todas as datas para garantir que a mais recente seja a última
         todas_as_datas.sort(reverse=True)
@@ -468,12 +468,12 @@ class CACOAPOSSE:
         
         # Converter o formato de data
         if len(data_formatada) == 10:  # Formato DD/MM/YYYY
-            data_formatada = f'DATA DOU: {data_formatada}'
+            data_formatada = f'{data_formatada}'
         elif len(data_formatada) == 9:  # Formato DDMMMYYYY
             try:
-                data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('DATA DOU: %d/%m/%Y')
+                data_formatada = datetime.strptime(data_formatada, '%d%b%Y').strftime('%d/%m/%Y')
             except ValueError:
-                data_formatada = 'DATA DOU: Desconhecida'
+                data_formatada = 'Desconhecida'
         
         return data_formatada
 

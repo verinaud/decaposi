@@ -54,7 +54,7 @@ class Decaposi():
             # Atualiza a planilha
             self.atualiza_planilha(lista_aposentados)
 
-        self.consultar_vinculo_decipex()  # Tem pronto
+        #self.consultar_vinculo_decipex()  # Tem pronto
 
         self.consultar_cacoaposse()  # Beatriz
 
@@ -216,7 +216,6 @@ class Decaposi():
             fundamento_legal    = linha['Fundamento Legal']
             nome                = linha['Nome']
 
-            print(status_cacoaposse)
 
             #Verifica se o status ao consultar o cacoaposse está None, se sim instancia. 
             if pd.isna(status_cacoaposse):
@@ -258,8 +257,6 @@ class Decaposi():
                 aposentado.set_data_aposentadoria(cacoaposse.get_data_aposentadoria())
 
                 aposentado.fundamento_legal     = cacoaposse.get_fundamento_legal()
-
-                print(aposentado)
 
                 self.atualiza_planilha(lista_aposentados)
             
