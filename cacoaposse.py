@@ -186,7 +186,7 @@ class CACOAPOSSE:
             sleep(0.1)                    
             self.__dlg.type_keys(">"+'CACOAPOSSE')
             sleep(0.1)
-            kb.press("Enter")                    
+            self.__dlg.type_keys("{ENTER}")                  
             sleep(0.1)
             self.__dlg.type_keys('{TAB}')
                         
@@ -394,7 +394,9 @@ class CACOAPOSSE:
                         flag_selecione = False
                         self.dl_aposentadoria    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 20, 10, 80).strip()
                         self.data_dou            = self.extrair_data(self.dl_aposentadoria)
-                        self.data_aposentadoria  = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 20, 11, 33).strip()
+                        self.data_aposentadoria_text  = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 11, 20, 11, 33).strip()
+                        self.data_aposentadoria = Aposentados.trata_data(self.data_aposentadoria_text)
+
  
 
                         sleep(0.5)                             
@@ -490,6 +492,7 @@ class CACOAPOSSE:
         return self.data_dou
 
     def get_data_aposentadoria(self):
+
         return self.data_aposentadoria
 
     def get_fundamento_legal(self):

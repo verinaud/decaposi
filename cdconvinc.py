@@ -181,7 +181,7 @@ class CDCONVINC:
             sleep(0.1)                    
             self.__dlg.type_keys(">"+'CDCONVINC')
             sleep(0.1)
-            kb.press("Enter")                    
+            self.__dlg.type_keys("{ENTER}")                  
             sleep(0.1)
             self.__dlg.type_keys('{TAB}')
             
@@ -203,7 +203,7 @@ class CDCONVINC:
                         flag_ultima___pagina = True
                         
                         sleep(0.1)
-                        kb.press("Enter")                    
+                        self.__dlg.type_keys("{ENTER}")                  
                         sleep(0.1)
                         self.__dlg.type_keys('{TAB}')
                         
