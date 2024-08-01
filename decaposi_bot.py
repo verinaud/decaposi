@@ -217,9 +217,8 @@ class Decaposi():
             nome                = linha['Nome']
 
 
-            #Verifica se o status ao consultar o cacoaposse está None, se sim instancia. 
+            #Verifica se o status ao consultar o cacoaposse está None, se sim instancia.
             if pd.isna(status_cacoaposse):
-                
                 aposentado = Aposentados(
                     indice,
                     status            = status,

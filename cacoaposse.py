@@ -450,15 +450,21 @@ class CACOAPOSSE:
     @staticmethod
     def extrair_data(texto):
         '''Extrai a última data do texto fornecido e retorna no formato 'DATA DOU: DD/MM/YYYY' '''
-        padrao_data1 = r'\d{2}/\d{2}/\d{4}'
-        padrao_data2 = r'\d{2}[a-zA-Z]{3}\d{4}'
+        padrao_data1 = r'\d{2}/\d{2}/\d{4}' # Formato DD/MM/YYYY
+        padrao_data2 = r'\d{2}-\d{2}-\d{4}' # Formato DD-MM-YYYY
+        padrao_data3 = r'\d{4}/\d{2}/\d{2}' # Formato YYYY/MM/DD
+        padrao_data4 = r'\d{4}-\d{2}-\d{2}' # Formato YYYY-MM-DD
+        padrao_data5 = r'\d{2}[a-zA-Z]{3}\d{4}' # Formato DDMMMYYYY
         
         # Encontrar todas as datas no texto
         resultados1 = re.findall(padrao_data1, texto)
         resultados2 = re.findall(padrao_data2, texto)
+        resultados3 = re.findall(padrao_data3, texto)
+        resultados4 = re.findall(padrao_data4, texto)
+        resultados5 = re.findall(padrao_data5, texto)
         
         # Combinar todas as datas encontradas
-        todas_as_datas = resultados1 + resultados2
+        todas_as_datas = resultados1 + resultados2 + resultados3 + resultados4 + resultados5
         
         if not todas_as_datas:
             return 'Desconhecida'
