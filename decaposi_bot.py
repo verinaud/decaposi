@@ -24,7 +24,7 @@ class Decaposi():
 
         self.json = self.config.get_json() # Pega o config_json
 
-        self.interface = Interface() # Cria uma instancia da classe Interface
+        self.interface = Interface() # Cria uma instancia da classe Interface        
 
         self.window = self.interface.window # Recebe objeto UI da classe Interface        
 
@@ -37,6 +37,16 @@ class Decaposi():
         sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt    
 
     def iniciar(self):
+        '''
+        Pegar usuario e unidade digitado na interface e atualizar o self.config;
+        pegar a senha'''
+
+        user = self.interface.window.login_input.text()
+        senha = self.interface.window.password_input.text()
+        self.config["ultimo_acesso_user"] = user
+        self.config.set_json(self.config)       
+        
+        msg(user)
         print("Iniciou")
 
         self.planilha = 'base_dados_aposentados.xlsx'
