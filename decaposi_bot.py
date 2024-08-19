@@ -1,5 +1,5 @@
 import sys
-from configuracao import Config
+from configuracao import Configuracao
 from interface import Interface
 import pandas as pd
 from aposentados import Aposentados
@@ -20,7 +20,9 @@ from cacoaposse import CACOAPOSSE
 class Decaposi():
     def __init__(self):
         msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
-        self.config = Config() # Cria uma instancia da classe Config
+        self.configuracao = Configuracao() # Cria uma instancia da classe Configuracao
+
+        self.config = self.configuracao.get_config() # recebe a variavel config que contém os parametros do arquivo json
 
         self.interface = Interface() # Cria uma instancia da classe Interface        
 
@@ -42,7 +44,7 @@ class Decaposi():
         user = self.interface.window.login_input.text()
         senha = self.interface.window.password_input.text()
         self.config["ultimo_acesso_user"] = user
-        self.config.atualiza_json(self.config)       
+        self.configuracao.atualiza_json(self.config)       
         
         msg(user)
         print("Iniciou")
