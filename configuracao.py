@@ -5,12 +5,8 @@ class Config:
         self.config = None
         self.popula_config()
         
-    #Retorna um dicionário do arquivo config.json
-    def get_json(self):
-        return self.config
-    
     #Recebe alterações e grava no arquivo config.json
-    def set_json(self, config):
+    def atualiza_json(self, config):
         self.config = config
         with open("config.json", 'w', encoding="utf-8") as file:
             json.dump(config, file, indent=4, ensure_ascii=False)

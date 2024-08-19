@@ -22,8 +22,6 @@ class Decaposi():
         msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
         self.config = Config() # Cria uma instancia da classe Config
 
-        self.json = self.config.get_json() # Pega o config_json
-
         self.interface = Interface() # Cria uma instancia da classe Interface        
 
         self.window = self.interface.window # Recebe objeto UI da classe Interface        
@@ -44,7 +42,7 @@ class Decaposi():
         user = self.interface.window.login_input.text()
         senha = self.interface.window.password_input.text()
         self.config["ultimo_acesso_user"] = user
-        self.config.set_json(self.config)       
+        self.config.atualiza_json(self.config)       
         
         msg(user)
         print("Iniciou")
