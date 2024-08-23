@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QApplication, QMessageBox, QListWidget, QListWidgetI
 from PyQt5.QtCore import QThread
 from PyQt5.QtGui import QFont
 import sys
+from configuracao import Configuracao
+
 
 class Interface():
     def __init__(self):
@@ -49,6 +51,9 @@ class UI(QMainWindow) :  # inserir QMainWindow no parâmetro
 
         # Criar um QComboBox
         self.unidade_combo_box = QComboBox(self.panel1)
+
+        # Preenche o QComboBox com a lista de órgãos
+        self.preencher_unidade_combo_box()
         
 
         #botão iniciar
@@ -127,6 +132,12 @@ class UI(QMainWindow) :  # inserir QMainWindow no parâmetro
         self.move(int((screen.width() - window.width()) / 2), int((screen.height() - window.height()) / 2))
 
         self.show()
+
+    def preencher_unidade_combo_box(self):
+        config = Configuracao().get_config()
+        self.unidade_combo_box.addItem(self.config["ultimo_orgao"])
+        lista_orgaos = config.get("lista_orgaos", [])
+        self.unidade_combo_box.addItems(lista_orgaos)
 
 
     def toggle_password_visibility(self):

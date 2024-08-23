@@ -26,7 +26,7 @@ class Decaposi():
 
         self.interface = Interface() # Cria uma instancia da classe Interface        
 
-        self.window = self.interface.window # Recebe objeto UI da classe Interface        
+        self.window = self.interface.window # Recebe objeto UI da classe Interface   
 
         self.planilha = None
 
@@ -44,8 +44,8 @@ class Decaposi():
         user = self.interface.window.login_input.text()
         senha = self.interface.window.password_input.text()
         self.config["ultimo_acesso_user"] = user
-        self.configuracao.atualiza_json(self.config)       
-        
+        self.configuracao.atualiza_json(self.config)
+      
         msg(user)
         print("Iniciou")
 
