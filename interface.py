@@ -134,9 +134,9 @@ class UI(QMainWindow) :  # inserir QMainWindow no parâmetro
         self.show()
 
     def preencher_unidade_combo_box(self):
-        config = Configuracao().get_config()
-        self.unidade_combo_box.addItem(config["ultimo_orgao"])
-        lista_orgaos = config.get("lista_orgaos", [])
+        json = Configuracao().get_json()
+        self.unidade_combo_box.addItem(json["ultimo_orgao"])
+        lista_orgaos = json.get("lista_orgaos", [])
         self.unidade_combo_box.addItems(lista_orgaos)
 
 

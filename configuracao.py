@@ -1,15 +1,17 @@
 import json
+from tela_mensagem import Mensagem as msg
+import sys
 
 class Configuracao:
     def __init__(self):
         self.__config = None
         self.__popula_config()
 
-    def get_config(self):
+    def get_json(self):
         return self.__config
         
     #seta alterações do self.config
-    def set_config(self, config):
+    def set_json(self, config):
         self.__config = config
     
     #Recebe alterações e grava no arquivo config.json
@@ -48,5 +50,7 @@ class Configuracao:
             with open("config.json", 'w', encoding="utf-8") as file:
                 json.dump(config_json, file, indent=4, ensure_ascii=False)
             self.__config = config_json
+            msg("Atualize as informações em config.json.")
+            sys.exit()
         except Exception as e:
             print(f"Erro ao criar configuração padrão: {e}")

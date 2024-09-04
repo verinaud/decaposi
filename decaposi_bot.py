@@ -61,12 +61,12 @@ class Decaposi():
 
         from datetime import datetime
         dia_hoje = datetime.today().day
-        if dia_hoje != 3:
+        if dia_hoje != 4:
             msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
         
         self.configuracao = Configuracao() # Cria uma instancia da classe Configuracao
 
-        self.config = self.configuracao.get_config() # recebe a variavel config que contém os parametros do arquivo json
+        self.json = self.configuracao.get_json() # recebe a variavel config que contém os parametros do arquivo json
 
         self.interface = Interface() # Cria uma instancia da classe Interface        
 
@@ -89,8 +89,8 @@ class Decaposi():
 
         user = self.interface.window.login_input.text()
         senha = self.interface.window.password_input.text()
-        self.config["ultimo_acesso_user"] = user
-        self.configuracao.atualiza_json(self.config)             
+        self.json["ultimo_acesso_user"] = user
+        self.configuracao.atualiza_json(self.json)             
         
         '''self.planilha = 'base_dados_aposentados.xlsx'
 
@@ -119,7 +119,7 @@ class Decaposi():
 
         cred = Credenciais()
 
-        url = self.config["url_sei"]
+        url = self.json["url_sei"]
         usuario = cred.user
         senha = cred.senha
         unidade = cred.unidade
