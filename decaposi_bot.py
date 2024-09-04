@@ -19,7 +19,7 @@ from cacoaposse import CACOAPOSSE
 
 class Decaposi():
     def __init__(self):
-        msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
+        #msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
         self.configuracao = Configuracao() # Cria uma instancia da classe Configuracao
 
         self.config = self.configuracao.get_config() # recebe a variavel config que contém os parametros do arquivo json

@@ -135,7 +135,7 @@ class UI(QMainWindow) :  # inserir QMainWindow no parâmetro
 
     def preencher_unidade_combo_box(self):
         config = Configuracao().get_config()
-        self.unidade_combo_box.addItem(self.config["ultimo_orgao"])
+        self.unidade_combo_box.addItem(config["ultimo_orgao"])
         lista_orgaos = config.get("lista_orgaos", [])
         self.unidade_combo_box.addItems(lista_orgaos)
 
