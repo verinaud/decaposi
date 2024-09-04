@@ -16,27 +16,73 @@ from time import sleep
 import keyboard as kb
 from cdconvinc import CDCONVINC
 from cacoaposse import CACOAPOSSE
+import re
+from datetime import datetime
+from browser import Browser
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.support.ui import Select
+from seleciona_unidade_sei import SelecionaUnidade
+from decipyx.web_automation import WebAutomation as wauto
+
+class Vinculo():
+
+    def __init__(self, orgao, data_aposentadoria, data_ingresso, data_exclusao, anterior, atual):
+        self.orgao          = orgao
+        self.aposentadoria  = data_aposentadoria
+        self.ingresso       = data_ingresso
+        self.exclusao       = data_exclusao
+        self.anterior       = anterior
+        self.atual          = atual
+
+    def __str__(self):
+        return (f"Órgão: {self.orgao}\n"
+                f"Aposentadoria: {self.aposentadoria}\n"
+                f"Ingresso: {self.ingresso}\n"
+                f"Exclusão: {self.exclusao}\n"
+                f"Anterior: {self.anterior}\n"
+                f"Atual: {self.atual}")
+    
+    def is_regra_origem(self):
+        # Converte as datas para objetos datetime
+        aposentadoria_date = datetime.strptime(str(self.aposentadoria), '%d/%m/%Y')
+        ingresso_date = datetime.strptime(str(self.ingresso), '%d/%m/%Y')
+        exclusao_date = datetime.strptime(str(self.exclusao), '%d/%m/%Y')
+
+        # Verifica se a data de aposentadoria está entre as datas de ingresso e exclusão
+        return ingresso_date <= aposentadoria_date <= exclusao_date
+
 
 class Decaposi():
     def __init__(self):
-        #msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
+
+        from datetime import datetime
+        dia_hoje = datetime.today().day
+        if dia_hoje != 3:
+            msg("Tratamento para:\nNão há dados para esta consulta em cacoaposse;\nUltimo órgão de origem em cacoaposse;\nCPF com duas aposentadorias em cacoaposse;\n\nverificar cpf's em chat alinhamento automação coate")
+        
         self.configuracao = Configuracao() # Cria uma instancia da classe Configuracao
 
         self.config = self.configuracao.get_config() # recebe a variavel config que contém os parametros do arquivo json
 
         self.interface = Interface() # Cria uma instancia da classe Interface        
 
-        self.window = self.interface.window # Recebe objeto UI da classe Interface   
+        self.window = self.interface.window # Recebe objeto UI da classe Interface        
 
         self.planilha = None
 
         self.dlg = None
 
-        self.evento_botoes()        
+        self.iniciar()
+
+        self.evento_botoes()
 
         sys.exit(self.interface.app.exec_()) # inicia o loop de eventos da aplicação PyQt    
 
-    def iniciar(self):
+    def iniciar(self):        
         '''
         Pegar usuario e unidade digitado na interface e atualizar o self.config;
         pegar a senha'''
@@ -44,12 +90,9 @@ class Decaposi():
         user = self.interface.window.login_input.text()
         senha = self.interface.window.password_input.text()
         self.config["ultimo_acesso_user"] = user
-        self.configuracao.atualiza_json(self.config)
-      
-        msg(user)
-        print("Iniciou")
-
-        self.planilha = 'base_dados_aposentados.xlsx'
+        self.configuracao.atualiza_json(self.config)             
+        
+        '''self.planilha = 'base_dados_aposentados.xlsx'
 
         flag_existe_planilha = self.seleciona_planilha(self.planilha)        
 
@@ -64,13 +107,40 @@ class Decaposi():
             # Atualiza a planilha
             self.atualiza_planilha(lista_aposentados)
 
-        #self.consultar_vinculo_decipex()  # Tem pronto
+        self.consultar_vinculo_decipex()  # Tem pronto
+
+        msg("pausa")
 
         self.consultar_cacoaposse()  # Beatriz
 
-        self.sair_siape()
+        self.sair_siape()'''
+        
+        from credenciais import Credenciais
 
-        self.preencher_declaracao()  # Beatriz/André    
+        cred = Credenciais()
+
+        url = self.config["url_sei"]
+        usuario = cred.user
+        senha = cred.senha
+        unidade = cred.unidade
+
+        browser_sei = self.login_sei(url, usuario, senha, unidade)
+
+        # fecha tela de aviso
+        path = '/html/body/div[7]/div[2]/div[1]/div[3]/img'
+        try:
+            browser_sei.implicitly_wait(10)
+            if browser_sei.find_element(By.XPATH, path):  
+                browser_sei.find_element(By.XPATH, path).click()
+        except Exception as e:
+            print(f"Erro ao fechar janela de aviso: {e}")
+
+        # Seleciona a unidade sei
+        SelecionaUnidade(browser_sei, self.config["unidade_sei"])
+
+        msg("pausa")      
+
+        self.preencher_declaracao(browser_sei)  # Beatriz/André   
     
     
     def ler_base_dados(self):
@@ -167,22 +237,192 @@ class Decaposi():
         
         for aposentado in lista_aposentados:
 
-            try:
+            cd.consultar_cpf(aposentado.cpf)
 
-                cd.consultar_cpf(aposentado.cpf)
+            lista_tuplas = cd.get_lista_dados(aposentado.cpf)
 
-                aposentado.vinculo_decipex = cd.get_vinculo_decipex(aposentado.cpf)
+            lista_tupla_servidores_est02_est15 = []
+            for lista in lista_tuplas:
+                if lista[2] == 'servidor' and lista[6] == 'EST02' or lista[6] == 'EST15':
+                    lista_tupla_servidores_est02_est15.append(lista)
 
-                aposentado.status = cd.get_status_cpf(aposentado.cpf)
+            if len(lista_tupla_servidores_est02_est15) > 0:
+                lista_dados = self.coletar_dados_vinculo(lista_tupla_servidores_est02_est15)
 
-                self.atualiza_planilha(lista_aposentados)
+                self.rastrear_orgao_origem(lista_dados)
 
-            except Exception as erro:
+            aposentado.vinculo_decipex = cd.get_vinculo_decipex(aposentado.cpf)
 
-                self.consultar_vinculo_decipex()
+            aposentado.status = cd.get_status_cpf(aposentado.cpf)
+
+            self.atualiza_planilha(lista_aposentados)              
             
-            sleep(2)   
+            sleep(2) 
+
+        sys.exit()
+
+    def rastrear_orgao_origem(self, lista_dados):
+        num_vinculos = len(lista_dados)
+
+        #pego o primeiro atual do objeto
+        atual = lista_dados[0].atual
+        atual = atual.split("/")
+        atual = atual[0]
+
+        msg(f"atual {atual}")
+
+        
+
+        #entro em orgao atual e
+
+
+
+
+        #laço que fará as comparações
+        for obj in lista_dados:
+            pass
+
+            
     
+    def coletar_dados_vinculo(self, lista_tuplas):
+        msg(lista_tuplas)
+        lista_vinculos = [] 
+
+        self.__app = Application().connect(title_re="^Terminal 3270.*")
+        self.__dlg = self.__app.window(title_re="^Terminal 3270.*")
+        self.__acesso_terminal = controle_terminal3270.Janela3270()
+
+        sleep(0.5)
+        for tupla in lista_tuplas:
+            cpf_texto = tupla[0]
+            self.__dlg.type_keys(cpf_texto) #cpf
+            sleep(0.5)
+            self.__dlg.type_keys("{ENTER}")
+            sleep(0.5)
+            self.__dlg.type_keys("x")
+            sleep(0.5)
+            self.__dlg.type_keys("{ENTER}")
+
+            #navega até a linha
+            xtab = int(tupla[4]) - 10
+            if xtab > 0:
+                for i in range(0, xtab):
+                    self.__dlg.type_keys("{TAB}")
+            
+            sleep(0.5)
+            self.__dlg.type_keys("x")
+            sleep(0.5)
+            self.__dlg.type_keys("{ENTER}")
+
+            flag_avanca_pagina = True
+
+            vinculo = Vinculo(tupla[5], None, None, None, None, None)
+
+            while flag_avanca_pagina:
+                #pegar da linha 7 = 0 até a 23 = 16
+                for i in range(7, 24):
+                    texto_aposentadoria     = r'[_\s]*(APOSENTADORIA)[_\s]*'
+                    texto_ingresso          = r'[_\s]*(INGRESSO NO ORGAO)[_\s]*'
+                    texto_exclusao          = r'[_\s]*(EXCLUSAO)[_\s]*'
+                    texto_redistribuicao    = r'[_\s]*(REDISTRIBUICAO / REFORMA)[_\s]*'
+                    texto_ultima_pagina     = r'[_\s]*(ULTIMA TELA DO VINCULO)[_\s]*'
+
+                    texto_linha = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), i, 1, i, 80).strip()
+                    
+                    tem_aposentadoria = re.findall(texto_aposentadoria, texto_linha)
+                    if tem_aposentadoria:
+                        #msg("tem_aposentadoria")
+                        data = None
+                        for j in range(i, i+3):                                                    
+                            texto = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), j, 1, j, 80).strip()
+                            data = self.converter_data(texto)
+                            vinculo.aposentadoria = data
+                            if data is not None:
+                                #msg(f"data da aposentadoria{data}")
+                                break
+
+                    tem_ingresso = re.findall(texto_ingresso, texto_linha)
+                    if tem_ingresso:
+                        data = None
+                        for j in range(i, i+3):                                                    
+                            texto = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), j, 1, j, 80).strip()
+                            data = self.converter_data(texto)
+                            vinculo.ingresso = data
+                            if data is not None:
+                                break
+                    
+                    tem_exclusao = re.findall(texto_exclusao, texto_linha)
+                    if tem_exclusao:
+                        data = None
+                        for j in range(i, i+3):                                                    
+                            texto = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), j, 1, j, 80).strip()
+                            data = self.converter_data(texto)
+                            vinculo.exclusao = data
+                            if data is not None:
+                                break
+
+                    
+                    tem_redistribuicao = re.findall(texto_redistribuicao, texto_linha)
+                    if tem_redistribuicao:
+                        anterior    = texto = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), (i+1), 27, (i+1), 41).strip()
+                        vinculo.anterior = anterior
+                        atual       = texto = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), (i+2), 27, (i+2), 41).strip()    
+                        vinculo.atual = atual
+                        
+
+                    tem_ultima_pagina = re.findall(texto_ultima_pagina, texto_linha)
+                    if tem_ultima_pagina:
+                        self.__dlg.type_keys('{F12}')
+                        sleep(1)
+                        self.__dlg.type_keys('{F12}')
+                        sleep(1)
+                        self.__dlg.type_keys('{TAB}')
+                        flag_avanca_pagina = False
+                        break
+                    
+                if flag_avanca_pagina: self.__dlg.type_keys('{F8}')
+
+            lista_vinculos.append(vinculo)
+            print(vinculo)
+            print("----------------------------------")
+            print(f"regra {vinculo.is_regra_origem()}") 
+
+                        
+        return lista_vinculos
+
+        
+        '''
+        sleep(0.5)
+        cpf_texto = tupla[0]
+        msg(cpf_texto)
+        self.__dlg.type_keys(cpf_texto) #cpf
+        sleep(0.5)
+        self.__dlg.type_keys("{ENTER}")
+        sleep(0.5)
+        self.__dlg.type_keys("x")
+        sleep(0.5)
+        self.__dlg.type_keys("{ENTER}")
+
+        msg('péra')
+        
+        for tupla in lista_tuplas: 
+            
+            #navega até a linha
+            xtab = int(tupla[4]) - 10
+            if xtab > 0:
+                for i in range(0, xtab):
+                    self.__dlg.type_keys("{TAB}")
+            
+            sleep(0.5)
+            self.__dlg.type_keys("x")
+
+
+            msg("essa pausa")
+
+
+        
+        pass
+'''
     
     def consultar_cacoaposse(self):
         """
@@ -274,8 +514,7 @@ class Decaposi():
                 continue
             sleep(2)
                     
-
-    def preencher_declaracao(self):
+    def preencher_declaracao(self, browser_sei):
         """
         Preenche declaração no SEI.
 
@@ -294,7 +533,29 @@ class Decaposi():
             4. Fecha o terminal 3270
             5. Renomeia a planilha para "Solicitação_finalizada.xlsx
         """
+        
+        
 
+
+
+    def login_sei(self, url, usuario, senha, unidade):
+        browser = Browser().get_browser_01()
+        try:
+            browser.get(url)
+            browser.maximize_window()
+            sleep(3)
+            browser.find_element(by=By.ID, value='selOrgao').send_keys(unidade) ##aqui
+            browser.find_element(by=By.ID, value='txtUsuario').send_keys(usuario)
+            browser.find_element(by=By.ID, value='pwdSenha').send_keys(senha)
+            try: # nem sempre precisa clicar no botao "Acessar" para que o login aconteca
+                browser.find_element(by=By.ID, value='Acessar').click()
+                sleep(1)
+            except:
+                sleep(1)
+        except self.exception as e:
+            print(f"Erro ao acessar o site {url}: {e}")
+
+        return browser
 
     def evento_botoes(self):
         self.window.button_iniciar.clicked.connect(self.iniciar)
@@ -319,7 +580,6 @@ class Decaposi():
                 
         return flag_existe_planilha
 
-
     def sair_siape(self) :
         try:
             self.app = Application().connect(title_re="^Painel de controle.*")
@@ -330,6 +590,42 @@ class Decaposi():
         except Exception as e:
             print(e)  
             
+    def converter_data(self, texto):
+        padrao_data = r'DATA OCORRENCIA:(\d{2})(JAN|FEV|MAR|ABR|MAI|JUN|JUL|AGO|SET|OUT|NOV|DEZ)(\d{4})'
+        match = re.search(padrao_data, texto)
+        
+        if not match:
+            return None
+
+        # Se o padrão for encontrado, extraia as partes da data
+        dia = match.group(1)
+        mes_abrev = match.group(2)
+        ano = match.group(3)
+
+        # Dicionário para mapear os meses abreviados para números
+        meses = {
+            "JAN": "01",
+            "FEV": "02",
+            "MAR": "03",
+            "ABR": "04",
+            "MAI": "05",
+            "JUN": "06",
+            "JUL": "07",
+            "AGO": "08",
+            "SET": "09",
+            "OUT": "10",
+            "NOV": "11",
+            "DEZ": "12"
+        }
+        
+        # Converte o mês abreviado para número
+        mes = meses.get(mes_abrev.upper(), "00")
+        
+        # Formata a data no formato desejado
+        data_formatada = f"{dia}/{mes}/{ano}"
+        
+        return data_formatada
+    
     def atualiza_planilha(self, lista_aposentados):
 
         # Abre a planilha Excel uma vez para atualização, especificando que todas as colunas devem ser lidas como strings
