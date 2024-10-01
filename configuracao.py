@@ -35,14 +35,16 @@ class Configuracao:
             "ultimo_orgao": "",
             "url_sei": "https://sei.economia.gov.br",
             "url_siapenet": "https://www1.siapenet.gov.br/orgao/Login.do?method=inicio",
-            "unidade_sei": "MGI-SGP-DECIPEX-COATE-AFD",
-
+            "unidade_sei": "MGI-SGP-DECIPEX-COATE-DECLARA",
+            "numero_processo_sei": "19975.002593/2024-35",
+            "caminho_tabela_orgaos": "TABELA_ORGAO_20240619.xlsx",
+            
             "lista_orgaos": [
                 "MGI", "ME", "CMB", "COAF", "MTP", "MF", "MPO", "MDIC", "MPI", "MPS", "MEMP"
             ],
 
             "vinculos_decipex": [
-                "40802", "40805", "40806"
+                "40801", "40802", "40803", "40804", "40805", "40806"
             ]            
         }
         

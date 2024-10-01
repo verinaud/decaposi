@@ -44,7 +44,7 @@
     
     <property name="jnlp.hod.EnableHTMLOverrides" value="true"/>
     <property name="jnlp.hod.TargetedSessionList" value="Terminal 3270"/>
-    <property name="jnlp.hod.LUName" value="Terminal 3270=AWVAFY5K"/> 
+    <property name="jnlp.hod.LUName" value="Terminal 3270=AWVAD4VS"/> 
 
   </resources>
   <application-desc main-class="com.ibm.eNetwork.HOD.cached.wssupport.WSCachedSupporter"/>

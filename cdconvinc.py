@@ -11,6 +11,7 @@ import glob
 import sys
 import re
 import os
+from tela_mensagem import Mensagem as msg
 
 class CDCONVINC:
     def __init__(self, url, lista_vinculos_decipex):
@@ -140,7 +141,7 @@ class CDCONVINC:
             resultado = re.findall(padrao, texto_tela)
             if resultado:
                 flag = False
-                sleep(0.3)
+                sleep(1)
             if conta_flag == 0:
                 self.__sair_siape()
                 return False
@@ -166,27 +167,34 @@ class CDCONVINC:
     
     def __navegacao_inicial_ate_cpf(self):
         
-        texto_tela = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
-        texto1 = r'[_\s]*(MENSAGEM)[_\s]*'
-        texto2 = r'[_\s]*(CADASTRADA)[_\s]*'
-        texto3 = r'[_\s]*(POSICIONE O CURSOR NA OPCAO DESEJADA E PRESSIONE)[_\s]*'
-        
-        resultado1 = re.findall(texto1, texto_tela)
-        resultado2 = re.findall(texto2, texto_tela)
+        #Entra no laço aguardando que algum resultado apareça antes de continuar
+        conta_espera = 0
+        while True:
+            texto_tela = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
+            
+            texto1 = r'[_\s]*(MENSAGEM)[_\s]*'
+            texto2 = r'[_\s]*(CADASTRADA)[_\s]*'
+            texto3 = r'[_\s]*(POSICIONE O CURSOR NA OPCAO DESEJADA E PRESSIONE)[_\s]*'
+            
+            resultado1 = re.findall(texto1, texto_tela)
+            resultado2 = re.findall(texto2, texto_tela)
+            resultado3 = re.findall(texto3, texto_tela)
+            
+            if resultado1 or resultado2 or resultado3:
+                break
+            else:
+                print(f"conta_espera: {conta_espera}")
+                sleep(1)
+                conta_espera += 1
+                if conta_espera >= 10:
+                    print("Não foi possível iniciar o CDCONVINC por 10 segundos e o programa será encerrado. Tente novamente!")
+                    sys.exit()
 
         if resultado1 and resultado2 :
-            sleep(0.5)
-            self.__dlg.type_keys('{F3}')
-            self.__dlg.type_keys('{F2}')                   
-            sleep(0.1)                    
-            self.__dlg.type_keys(">"+'CDCONVINC')
-            sleep(0.1)
-            self.__dlg.type_keys("{ENTER}")                  
-            sleep(0.1)
-            self.__dlg.type_keys('{TAB}')
+            pass
+            #self.navega_cdconvinc_ate_cpf()
             
-        else :
-            resultado3 = re.findall(texto3, texto_tela)
+        else :            
             if resultado3:
 
                 flag_ultima___pagina = False
@@ -198,49 +206,29 @@ class CDCONVINC:
                     resultado1 = re.findall(texto1, texto_tela)
                     
                     if resultado1 :
-                        sleep(0.1)                    
+                        sleep(0.5)                    
                         self.__dlg.type_keys(">"+"CDCONVINC")
                         flag_ultima___pagina = True
                         
-                        sleep(0.1)
+                        sleep(0.5)
                         self.__dlg.type_keys("{ENTER}")                  
-                        sleep(0.1)
+                        sleep(0.5)
                         self.__dlg.type_keys('{TAB}')
                         
             else:
-                sleep(0.5)
-                self.__dlg.type_keys('{F3}')
-                self.__dlg.type_keys('{F2}')                   
-                sleep(0.1)                    
-                self.__dlg.type_keys(">"+'CDCONVINC')
-                sleep(0.1)
-                kb.press("Enter")
-                self.__dlg.type_keys('{TAB}')                    
+                pass
+                #self.navega_cdconvinc_ate_cpf()                   
                 
     def __sair_siape(self) :
         try:
             __app = Application().connect(title_re="^Painel de controle.*")
             __dlg = __app.window(title_re="^Painel de controle.*")
-            __dlg.type_keys('%{F4}')            
-            flag = True
-            sleep(0.5)
+            sleep(1)
+            msg(f"Feche o Terminal 3270 para prosseguir.")
+         
 
-            while flag :
-
-                try :
-                    __app = Application().connect(title_re="^Fechar.*")
-                    __dlg = __app.window(title_re="^Fechar.*")
-                    # Pressionando ENTER
-                    __dlg.type_keys('{ENTER}')
-                    flag = False
-
-                except Exception :
-                    sleep(1)
-                    conta_flag+=1
-                    if conta_flag >= 15 :
-                        flag = False            
-
-        except Exception:
+        except Exception as erro:
+            #msg(f"erro: {erro}\nFeche o Terminal 3270 para prosseguir.")
             pass
 
     def cpf_ja_consultado(self, cpf):
@@ -316,7 +304,7 @@ class CDCONVINC:
         status = ""
         for x in self.__lista_tuplas:
             if x[0] == cpf:
-                status = x[6]
+                status = x[8]
         return status
 
     def consultar_cpf(self, cpf):
@@ -328,15 +316,16 @@ class CDCONVINC:
             CPF - string.
 
         Retorno:
-            Sem retorno.
+            Sem retorno. 
         
         """
         if self.cpf_ja_consultado(cpf):
             pass
         else:
-            self.__consultar_cpf(cpf)
+            self.__consultar_cpf(cpf)   
     
     def __consultar_cpf(self, cpf):
+        self.navega_cdconvinc_ate_cpf()
         
         self.__dlg.type_keys(cpf)
         kb.press("Enter")
@@ -365,16 +354,16 @@ class CDCONVINC:
                 return False
 
             if resultado1 or resultado2 or resultado3:
-                status_cpf = "O número de CPF",cpf,"não é válido! Verifique."
-                self.__popula_tupla(cpf, None, None , None, None, None, status_cpf)
-                print("O número de CPF",cpf,"não é válido! Verifique.")
+                status_cpf = f"O número de CPF {cpf} não é válido! Verifique."
+                self.__popula_tupla(cpf, None, None , None, None, None, None, None, status_cpf, None, None)
+                print(f"O número de CPF {cpf} não é válido! Verifique.")
                 self.__lista_cpf_ja_consultados.append(cpf)
                 flag_prossiga = False
 
             if resultado4:
-                status_cpf = "O CPF",cpf,"não tem vínculo com nenhum órgão."
-                self.__popula_tupla(cpf, None, None, None, None, None, status_cpf)
-                print("O CPF",cpf,"não tem vínculo com nenhum órgão.")
+                status_cpf = f"O CPF {cpf} não tem vínculo com nenhum órgão."
+                self.__popula_tupla(cpf, None, None, None, None, None, None, None, status_cpf, None, None)
+                print(f"O CPF {cpf} não tem vínculo com nenhum órgão.")
                 self.__lista_cpf_ja_consultados.append(cpf)
                 flag_prossiga = False
 
@@ -389,11 +378,11 @@ class CDCONVINC:
                 while flag_selecione:
                     conta_flag_selecione+=1
                     texto_consulta1 = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 1, 1, 24, 80).strip()
-                    texto11 = r'[_\s]*(SELECIONE O VINCULO DESEJADO)[_\s]*'
+                    texto_vinculos = r'[_\s]*(SELECIONE O VINCULO DESEJADO)[_\s]*'
 
-                    resultado11 = re.findall(texto11, texto_consulta1)
+                    res_vinculos = re.findall(texto_vinculos, texto_consulta1)
 
-                    if resultado11:            
+                    if res_vinculos:            
                         flag_selecione = False
                         self.__possui_cadastro(cpf)
                         self.__lista_cpf_ja_consultados.append(cpf)                       
@@ -418,6 +407,9 @@ class CDCONVINC:
 
         for __pagina in range(pg):
 
+            nome    = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 6, 12, 6, 80).strip()
+            
+
             for linha in range(10, 22):
                 conteudo_linha      = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 1, linha, 80).strip()
                 servidor            = r'[_\s]*(SERVIDOR)[_\s]*'
@@ -427,20 +419,27 @@ class CDCONVINC:
 
                 orgao       = None
                 servidor    = False
+                
 
                 if tem_servidor:
                     servidor    = True
-                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 25, linha, 29).strip()
-                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "servidor", __pagina, linha, orgao, status_cpf)
+                    est         = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 30, linha, 36).strip()
+                    matricula   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 38, linha, 42).strip()
+                    orgao       = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 25, linha, 29).strip()
+                    siape   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), 10, 30, 10, 36).strip()
+                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "servidor", __pagina, linha, orgao, matricula, est, status_cpf, nome, siape)
                 
                 if tem_pensionista:
                     pensionista = True
-                    orgao   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 40, linha, 44).strip()
-                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "pensionista", __pagina, linha, orgao, status_cpf)
+                    est = None
+                    matricula   = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 46, linha, 52).strip()
+                    orgao       = self.__acesso_terminal.pega_texto_siape(self.__acesso_terminal.copia_tela(), linha, 40, linha, 44).strip()
+                    siape       = "pensionista"
+                    self.__popula_tupla(cpf, self.__vinculo_decipex(orgao), "pensionista", __pagina, linha, orgao, matricula, est, status_cpf, nome, siape)
                 
                 
-    def __popula_tupla(self, cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, nota):
-        tupla = (cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, nota)
+    def __popula_tupla(self, cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, matricula, est, nota, nome, siape):
+        tupla = (cpf, vinculo_decipex, serv_pens, __pagina, linha, orgao, matricula, est, nota, nome, siape)
         self.__lista_tuplas.append(tupla)
         
 
@@ -450,6 +449,18 @@ class CDCONVINC:
             if str(ld) == str(orgao):
                 flag = True
         return flag
+    
+    def navega_cdconvinc_ate_cpf(self):
+        sleep(0.5)
+        self.__dlg.type_keys('{F3}')
+        sleep(0.5)
+        self.__dlg.type_keys('{TAB 9}')             
+        sleep(0.5)                    
+        self.__dlg.type_keys('>'+'CDCONVINC')
+        sleep(0.5)
+        self.__dlg.type_keys("{ENTER}")                  
+        sleep(0.5)
+        self.__dlg.type_keys('{TAB}')
 
 if __name__ == "__main__":
         lista_cpf = {"06194362715","00214850030","02857294700","00467931003","37094394004","06194362715","44043716753","37739891215","27780120104","14910195060","35511680753","14910195068","00455865515","05152470810","08749872885","50375725687","27780120104","62750887704","14910195068","25393430744","02058766768","21966311915","45883076734","02214792520","57050759872","42544173653","00063339315","20903073749","91149533820","09154388600","33810150606","72758007720","07007591744","01447849710","23830921772","14898217249","88171558704","04883063372","25597027468","72758007720","10318950782","02089440872","53457749604","02605708004","32048114768","50958631891","00653187491","02544967846","20565429272","15212971420","00028894200","56013884749","36342858772","05291616806","89221320278","14970031304","18694438887","35753528953","19572190687","01904944760","21966311915","02058766768","25393430744","00063339315","00063339315","02214792520","45883076734","99497948204","24467499687","27179192015","11104660563","36172128833","85117811704","21902836472","01220106984","14238152387","79956513504","01790664802","03919978315","68704690753","49674765700","03845338253","44420226749","07077809773","21707863687","39497798172","89925742587","02827603500","02858002800","47537744734","10914196472","35516410649","51879840634","29178770068","18232388234","17562210225","42449227687","32421281687","35817674734","31617182753","31644740672","15147002391","76075915834","89215575715","73952800759","21757917349","55760139649","75436019404","24652296720","25067311991","62487019700","02532840404","22065300744","12580279768","79113427849","05780322104"        }
@@ -470,10 +481,16 @@ if __name__ == "__main__":
 
             lista = cd.get_lista_dados(cpf)
 
+            from tela_mensagem import Mensagem as msg
+            strtext = ""
             for x in lista:
-                print(x)
+                strtext = strtext + "\n" + str(x)
+            print("**********************************************************")
+            print(strtext)
+            print("                                                          ")
+            print("**********************************************************")
 
-            print("Vínculo Decipex?",cd.tem_vinculo_decipex(cpf))
+            
 
             
 

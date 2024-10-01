@@ -48,7 +48,7 @@ class IniciaModSiape:
             try:
                 return Application().connect(title=title)
             except Exception as e:
-                print(f"Tentativa {attempts + 1}: {str(e)}")
+                #print(f"Tentativa {attempts + 1}: {str(e)}")
                 time.sleep(1)
                 attempts += 1
         print(f"Não foi possível estabelecer uma conexão com {title}")
